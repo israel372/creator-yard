@@ -1,0 +1,771 @@
+
+/* ========================================
+   Creator-Yard Dashboard
+   Responsive settings and portfolio styles
+======================================== */
+
+:root {
+  --primary: #6d28d9;
+  --primary-hover: #5b21b6;
+  --text: #222222;
+  --muted: #777777;
+  --border: #e5e5e5;
+  --surface: #ffffff;
+  --surface-soft: #faf9fc;
+  --danger: #dc2626;
+  --success: #15803d;
+  --radius: 14px;
+  --shadow: 0 6px 24px rgba(25, 15, 45, 0.06);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #ffffff;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ========================================
+   Main dashboard layout
+======================================== */
+
+.dashboard,
+.profile-page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+.dashboard-header,
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.dashboard-header h1,
+.profile-header h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.25;
+  font-weight: 750;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.dashboard-header p,
+.profile-header p {
+  color: var(--muted);
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.dashboard > form {
+  width: 100%;
+}
+
+/* ========================================
+   Settings cards
+======================================== */
+
+.settings-card {
+  min-width: 0;
+  width: 100%;
+  padding: 26px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  border: 1px solid #f0edf4;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.settings-card h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.settings-card h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.settings-card > p {
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* ========================================
+   Forms and inputs
+======================================== */
+
+.form-grid,
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 22px;
+}
+
+.form-group {
+  min-width: 0;
+  margin-bottom: 18px;
+}
+
+.form-group label,
+.settings-card label {
+  display: block;
+  margin-bottom: 8px;
+  color: #48404f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input:not([type="file"]):not([type="radio"]):not([type="checkbox"]),
+.form-group textarea,
+.form-group select,
+.profile-input,
+.profile-textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px 14px;
+  color: var(--text);
+  background: #ffffff;
+  border: 1px solid #ded9e5;
+  border-radius: 9px;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group textarea,
+.profile-textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.profile-input:focus,
+.profile-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.12);
+}
+
+.form-group input[type="file"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.form-group input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 12px;
+  color: var(--primary);
+  background: #f1eafe;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.form-group input[type="radio"],
+.form-group input[type="checkbox"],
+.radio-group input[type="radio"] {
+  accent-color: var(--primary);
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 8px 0 18px;
+}
+
+.radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ========================================
+   Image previews
+======================================== */
+
+.image-preview,
+.logo-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 210px;
+  margin: 10px 0 14px;
+  padding: 10px;
+  overflow: hidden;
+  color: #898292;
+  background: var(--surface-soft);
+  border: 2px dashed #d7d0e1;
+  border-radius: 12px;
+}
+
+.image-preview img,
+.logo-preview img,
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 7px;
+}
+
+.image-preview img[src=""],
+.logo-preview img[src=""] {
+  display: none;
+}
+
+/* ========================================
+   Buttons
+======================================== */
+
+.form-actions,
+.button-group,
+.button-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.form-actions button,
+.button-group button,
+.button-actions button,
+.save-btn,
+.cancel-btn,
+.add-product-btn,
+.edit-btn,
+.delete-btn,
+.danger-button,
+.secondary-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.form-actions button[type="submit"],
+.save-btn,
+.add-product-btn {
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.form-actions button[type="submit"]:hover,
+.save-btn:hover,
+.add-product-btn:hover {
+  background: var(--primary-hover);
+}
+
+.secondary-button,
+.cancel-btn {
+  color: #403849;
+  background: #ffffff;
+  border-color: #ded9e5;
+}
+
+.secondary-button:hover,
+.cancel-btn:hover {
+  background: #f7f5fa;
+  border-color: #c8bfd5;
+}
+
+.danger-button,
+.delete-btn {
+  color: #ffffff;
+  background: #ef4444;
+}
+
+.danger-button:hover,
+.delete-btn:hover {
+  background: var(--danger);
+}
+
+.edit-btn {
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.edit-btn:hover {
+  background: var(--primary-hover);
+}
+
+.product-buttons,
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.product-actions > button {
+  flex: 1;
+}
+
+.success-message,
+.error-message {
+  padding: 13px 16px;
+  margin-bottom: 20px;
+  border-radius: 9px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.success-message {
+  color: var(--success);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.error-message {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+/* ========================================
+   Portfolio and projects
+======================================== */
+
+.products-card {
+  margin-top: 24px;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.products-header p,
+.product-limit {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.product-limit {
+  margin-bottom: 18px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.empty-product {
+  min-width: 0;
+  padding: 20px;
+  background: var(--surface-soft);
+  border: 1px solid #ece7f1;
+  border-radius: 13px;
+}
+
+.product-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 180px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  color: #898292;
+  background: #ffffff;
+  border: 2px dashed #d7d0e1;
+  border-radius: 10px;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.records-list,
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.record-card,
+.review-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-width: 0;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #ece7f1;
+  border-radius: 12px;
+}
+
+.record-image {
+  flex: 0 0 120px;
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  background: var(--surface-soft);
+  border-radius: 8px;
+}
+
+.record-content,
+.review-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.record-content h4,
+.review-info h3 {
+  margin-bottom: 7px;
+  color: var(--text);
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.record-content p,
+.review-info p {
+  color: #6b6572;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.record-actions,
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.record-actions button,
+.review-actions button {
+  min-height: 38px;
+  padding: 8px 13px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+/* ========================================
+   Testimonials
+======================================== */
+
+.review-form {
+  padding: 20px;
+  margin-bottom: 22px;
+  background: var(--surface-soft);
+  border: 1px solid #ece7f1;
+  border-radius: 12px;
+}
+
+.review-form label {
+  display: block;
+  margin: 14px 0 8px;
+  color: #48404f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.review-stars {
+  color: #e8a600;
+  font-size: 18px;
+}
+
+.review-actions {
+  margin-left: auto;
+}
+
+/* ========================================
+   Legacy-compatible styling
+   Keeps existing elements styled if reused
+======================================== */
+
+.social-card {
+  margin-top: 10px;
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.products-card,
+.settings-card,
+.record-card,
+.review-item {
+  overflow-wrap: anywhere;
+}
+
+/* ========================================
+   Tablet layout
+======================================== */
+
+@media (max-width: 900px) {
+  .dashboard,
+  .profile-page {
+    padding: 28px 20px 44px;
+  }
+
+  .top-grid,
+  .form-grid,
+  .social-grid,
+  .product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-card {
+    padding: 22px;
+  }
+
+  .dashboard-header,
+  .profile-header {
+    align-items: flex-start;
+  }
+
+  .record-card,
+  .review-item {
+    flex-wrap: wrap;
+  }
+
+  .record-actions,
+  .review-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* ========================================
+   Mobile layout
+======================================== */
+
+@media (max-width: 600px) {
+  .dashboard,
+  .profile-page {
+    padding: 20px 14px 36px;
+  }
+
+  .dashboard-header,
+  .profile-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .dashboard-header h1,
+  .profile-header h1 {
+    font-size: 27px;
+  }
+
+  .dashboard-header p,
+  .profile-header p {
+    font-size: 14px;
+  }
+
+  .settings-card {
+    padding: 18px 15px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+
+  .settings-card h2 {
+    font-size: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group input:not([type="file"]):not([type="radio"]):not([type="checkbox"]),
+  .form-group textarea,
+  .form-group select,
+  .profile-input,
+  .profile-textarea {
+    font-size: 16px;
+  }
+
+  .radio-group {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .image-preview,
+  .logo-preview {
+    height: 170px;
+  }
+
+  .form-actions,
+  .button-group,
+  .button-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .form-actions button,
+  .button-group button,
+  .button-actions button,
+  .save-btn,
+  .cancel-btn,
+  .add-product-btn {
+    width: 100%;
+  }
+
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .record-card,
+  .review-item {
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .record-image {
+    flex: auto;
+    width: 100%;
+    height: 180px;
+  }
+
+  .record-actions,
+  .review-actions,
+  .product-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .record-actions button,
+  .review-actions button {
+    flex: 1;
+  }
+
+  .review-form {
+    padding: 15px;
+  }
+}
+
+/* ========================================
+   Small mobile screens
+======================================== */
+
+@media (max-width: 360px) {
+  .dashboard,
+  .profile-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .settings-card {
+    padding: 14px 12px;
+  }
+
+  .dashboard-header h1,
+  .profile-header h1 {
+    font-size: 24px;
+  }
+
+  .record-actions,
+  .review-actions,
+  .product-actions {
+    flex-direction: column;
+  }
+
+  .record-actions button,
+  .review-actions button,
+  .product-actions button {
+    width: 100%;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,0 +1,63 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+wrangler.toml.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Node.js and frontend build output
+node_modules/
+dist/
+dist-ssr/
+
+# Cloudflare local files
+.wrangler/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and local tooling
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local backups
+frontend_backup/
+dashboard-backup-*/
+creator-yard-backup/
+*.creator-yard-backup
+*.bak
+
+# Duplicate project copies
+frontend/frontend/
+frontend/backend/
+
+# Temporary dependency audit backups
+frontend/package.json.before-audit-fix
+frontend/package-lock.json.before-audit-fix
+
+# Unused legacy store images and Worker test output
+frontend/src/assets/store.jpg
+frontend/src/assets/wine.jpg
+cloudflare-worker/dist-test/
+
+# Old PowerChoice product seed data
+cloudflare-worker/insert_product_5.sql
+cloudflare-worker/insert_product_6.sql
+cloudflare-worker/insert_products_7_8.sql
+
+# Local referral test data
+backend/app/referrals.json
