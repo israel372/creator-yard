@@ -210,3 +210,208 @@ export const getUploadUrl = (filename) => {
   // Keep support for older/local uploaded files
   return `${API_BASE}/uploads/${filename}`;
 };
+
+// Video Portfolio
+export async function getPublishedVideos() {
+  const response = await fetch(`${API_BASE}/video-portfolio/`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load video portfolio");
+  }
+
+  return response.json();
+}
+
+// Video Portfolio Admin
+
+export async function loginVideoPortfolioAdmin(password) {
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/login`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Admin login failed");
+  }
+
+  return data;
+}
+
+export async function getAdminVideos(token) {
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load portfolio videos");
+  }
+
+  return response.json();
+}
+
+export async function uploadPortfolioVideo(file, token) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/upload`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Video upload failed");
+  }
+
+  return {
+    ...data,
+    url: data.url.startsWith("http")
+      ? data.url
+      : `${API_BASE}${data.url}`,
+  };
+}
+
+export async function createPortfolioVideo(video, token) {
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(video),
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to create video");
+  }
+
+  return data;
+}
+
+export async function updatePortfolioVideo(id, video, token) {
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(video),
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update video");
+  }
+
+  return data;
+}
+
+export async function deletePortfolioVideo(id, token) {
+  const response = await fetch(
+    `${API_BASE}/video-portfolio/admin/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to delete video");
+  }
+}
+// Video Production Page CMS
+
+export async function getPublishedVideoProductionContent() {
+  const response = await fetch(`${API_BASE}/video-production/content`);
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load video production page content");
+  }
+
+  return data;
+}
+
+export async function getAdminVideoProductionContent(token) {
+  const response = await fetch(`${API_BASE}/video-production/admin/content`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load page content");
+  }
+
+  return data;
+}
+
+export async function saveVideoProductionDraft(content, token) {
+  const response = await fetch(`${API_BASE}/video-production/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save page draft");
+  }
+
+  return data;
+}
+
+export async function publishVideoProductionContent(token) {
+  const response = await fetch(
+    `${API_BASE}/video-production/admin/content/publish`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish page content");
+  }
+
+  return data;
+}
