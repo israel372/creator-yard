@@ -1,30 +1,19 @@
-
 import { useState, useEffect } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
-import { getProfile, getUploadUrl } from "../api/api";
+import { getProfile } from "../api/api";
 import "./header.css";
 
 function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [profile, setProfile] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    async function loadProfile() {
-      try {
-        const data = await getProfile();
-        setProfile(data || {});
-      } catch (error) {
-        console.error("Could not load Creator-Yard profile:", error);
-      }
-    }
-
-    loadProfile();
+    getProfile()
+      .then((data) => setProfile(data || {}))
+      .catch(() => {});
   }, []);
 
   const brandName = profile.store_name || "Creator-Yard";
-
   const closeMenu = () => setMenuOpen(false);
-
 
   const isVideoProductionPage =
     window.location.pathname === "/video-production";
@@ -33,68 +22,41 @@ function Header() {
 
   const navLinks = [
     { label: "Home", href: `${homePrefix}#home` },
+    { label: "About", href: `${homePrefix}#about` },
     { label: "Services", href: `${homePrefix}#services` },
     { label: "Our Work", href: `${homePrefix}#work` },
     { label: "Video Production", href: "/video-production" },
-    { label: "About", href: `${homePrefix}#about` },
     { label: "Contact", href: `${homePrefix}#contact` },
   ];
-
-
 
   return (
     <header className="cy-header">
       <div className="container">
-        <nav aria-label="Main navigation">
-          <a
-            className="logo-area"
-            href="#home"
-            onClick={closeMenu}
-            aria-label={`${brandName} home`}
-          >
-            {(profile.logo_type === "image" ||
-              profile.logo_type === "both") &&
-              profile.logo && (
-                <img
-                  src={getUploadUrl(profile.logo)}
-                  alt=""
-                  className="header-logo"
-                />
-              )}
+        <a className="cy-header-brand" href="/" onClick={closeMenu}>
+          {profile.logo ? (
+            <img src={profile.logo} alt={brandName} />
+          ) : (
+            <span>{brandName}</span>
+          )}
+        </a>
 
-            {(profile.logo_type === "text" ||
-              profile.logo_type === "both" ||
-              !profile.logo_type) && <span>{brandName}</span>}
-          </a>
+        <button
+          type="button"
+          className="cy-menu-toggle"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? "?" : "?"}
+        </button>
 
-          <ul className="nav-links">
-            {navLinks.map((link) => (
-              <li key={link.label}>
-                <a href={link.href}>{link.label}</a>
-              </li>
-            ))}
-          </ul>
-
-          <button
-            type="button"
-            className="menu-btn"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={menuOpen}
-          >
-            {menuOpen ? <FaTimes /> : <FaBars />}
-          </button>
+        <nav className={menuOpen ? "cy-nav open" : "cy-nav"}>
+          {navLinks.map((link) => (
+            <a key={link.label} href={link.href} onClick={closeMenu}>
+              {link.label}
+            </a>
+          ))}
         </nav>
-
-        {menuOpen && (
-          <div className="mobile-menu">
-            {navLinks.map((link) => (
-              <a key={link.label} href={link.href} onClick={closeMenu}>
-                {link.label}
-              </a>
-            ))}
-          </div>
-        )}
       </div>
     </header>
   );
