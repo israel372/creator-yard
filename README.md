@@ -2,6 +2,10 @@
 
 Creator-Yard is a portfolio and services website for showcasing creative work, client brands, and business services.
 
+## Development setup
+
+For step-by-step installation instructions for macOS and Windows, see [Development Setup Guide](docs/DEVELOPMENT_SETUP.md).
+
 ## Technology
 
 - **Frontend:** React, Vite, React Router
@@ -72,4 +76,3 @@ Never commit environment files, database backups, local databases, dependency fo
 ## License
 
 No license has been selected yet. All rights remain with the copyright holder unless a license is added.
-
