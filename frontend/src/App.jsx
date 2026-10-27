@@ -1,27 +1,27 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/home";
+import VideoProduction from "./pages/videoProduction";
 import Dashboard from "./pages/profile/dashboard";
 import Join from "./pages/join";
 import PaymentCallback from "./pages/paymentCallback";
+import VideoPortfolioAdmin from "./pages/videoPortfolioAdmin";
+import VideoProductionContentAdmin from "./pages/videoProductionContentAdmin";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/video-production" element={<VideoProduction />} />
 
-        {/* Existing dashboard route */}
         <Route path="/profile/:profileToken" element={<Dashboard />} />
-
-        {/* New admin dashboard URL */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
-
         <Route path="/join" element={<Join />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route path="/admin/video-portfolio" element={<VideoPortfolioAdmin />} />
+        <Route path="/admin/video-production-content" element={<VideoProductionContentAdmin />} />
 
-        {/* Fallback for unknown URLs */}
         <Route
           path="*"
           element={

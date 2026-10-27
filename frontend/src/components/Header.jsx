@@ -25,13 +25,22 @@ function Header() {
 
   const closeMenu = () => setMenuOpen(false);
 
+
+  const isVideoProductionPage =
+    window.location.pathname === "/video-production";
+
+  const homePrefix = isVideoProductionPage ? "/" : "";
+
   const navLinks = [
-    { label: "Home", href: "#home" },
-    { label: "Services", href: "#services" },
-    { label: "Our Work", href: "#work" },
-    { label: "About", href: "#about" },
-    { label: "Contact", href: "#contact" },
+    { label: "Home", href: `${homePrefix}#home` },
+    { label: "Services", href: `${homePrefix}#services` },
+    { label: "Our Work", href: `${homePrefix}#work` },
+    { label: "Video Production", href: "/video-production" },
+    { label: "About", href: `${homePrefix}#about` },
+    { label: "Contact", href: `${homePrefix}#contact` },
   ];
+
+
 
   return (
     <header className="cy-header">
