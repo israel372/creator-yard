@@ -4,7 +4,7 @@
  */
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "cloudflare-worker",
+    "name": "creator-yard-api",
     "main": "src/entry.py",
     "compatibility_date": "2026-09-07",
     "compatibility_flags": [
@@ -15,13 +15,13 @@
     },
 
 "vars": {
-    "TEST_VALUE": "hello-powerchoice"
+    "TEST_VALUE": "hello-creator-yard"
 },
     "d1_databases": [
     {
         "binding": "DB",
-        "database_name": "powerchoice-db",
-        "database_id": "12bcab81-eb02-467a-b0b3-ac1e3d1f3d33",
+        "database_name": "creator-yard-db",
+        "database_id": "6b0e4730-9630-428a-874c-e0fb0aba5499",
         "remote": true
     }
 ]

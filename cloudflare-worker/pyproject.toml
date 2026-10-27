@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.141.1",
     "python-multipart>=0.0.32",
-    "workers-runtime-sdk>=1.8.4",
+    "workers-runtime-sdk>=1.9.0",
 ]
 
 [dependency-groups]
