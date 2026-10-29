@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./dashboard.css";
+
 import {
   PROFILE_TOKEN,
   getProfile,
@@ -12,85 +14,211 @@ import {
   deleteProduct,
   updateProduct,
   getUploadUrl,
+  getCurrentUserAccount,
 } from "../../api/api";
+
+const EMPTY_PROFILE = {
+  store_name: "Creator-Yard",
+  logo_type: "both",
+  logo: "",
+  facebook: "",
+  instagram: "",
+  tiktok: "",
+  twitter: "",
+  whatsapp: "",
+  email: "",
+  phone: "",
+  address: "",
+  ceo_name: "",
+  tagline: "",
+  description: "",
+};
+
+const EMPTY_BRAND = {
+  name: "",
+  link: "",
+  description: "",
+  image: "",
+};
+
+function getAccountObject(result) {
+  return result?.user ??
+    result?.account ??
+    result?.data?.user ??
+    result?.data ??
+    result ??
+    null;
+}
+
+function getAccountName(user) {
+  return (
+    user?.full_name ||
+    user?.fullName ||
+    user?.name ||
+    user?.display_name ||
+    user?.email ||
+    ""
+  );
+}
+
+function getAccountRole(user) {
+  const role = user?.role || user?.account_role || user?.access_level || "";
+
+  if (!role) return "Team member";
+
+  return String(role)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getInitials(name) {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  return parts.length
+    ? parts.map((part) => part[0]).join("").toUpperCase()
+    : "CY";
+}
+
+function normalizeUrl(value) {
+  const trimmed = String(value || "").trim();
+
+  if (!trimmed) return "";
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed;
+
+  return `https://${trimmed}`;
+}
+
+function getErrorMessage(error, fallback) {
+  if (error instanceof Error && error.message) {
+    return `${fallback} ${error.message}`;
+  }
+
+  return fallback;
+}
 
 function Dashboard() {
   const { profileToken } = useParams();
   const token = profileToken || PROFILE_TOKEN;
 
-  const [profile, setProfile] = useState({
-    store_name: "Creator-Yard",
-    logo_type: "both",
-    logo: "",
-    facebook: "",
-    instagram: "",
-    tiktok: "",
-    twitter: "",
-    whatsapp: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
-
+  const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [brands, setBrands] = useState([]);
-  const [brandForm, setBrandForm] = useState({
-    name: "",
-    link: "",
-    description: "",
-    image: "",
-  });
+  const [brandForm, setBrandForm] = useState(EMPTY_BRAND);
 
-  const [editingBrandId, setEditingBrandId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [accountLoading, setAccountLoading] = useState(true);
+
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingBrand, setSavingBrand] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBrandImage, setUploadingBrandImage] = useState(false);
+
+  const [editingBrandId, setEditingBrandId] = useState(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadDashboard();
-    // Load when the profile URL changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+    let active = true;
 
-  async function loadDashboard() {
+    async function loadCurrentUser() {
+      try {
+        const result = await getCurrentUserAccount();
+
+        if (active) {
+          setCurrentUser(getAccountObject(result));
+        }
+      } catch (err) {
+        console.error("Could not load signed-in account:", err);
+
+        if (active) {
+          setCurrentUser(null);
+        }
+      } finally {
+        if (active) {
+          setAccountLoading(false);
+        }
+      }
+    }
+
+    loadCurrentUser();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError("");
 
-    try {
-      const [profileData, productData] = await Promise.all([
-        getProfile(token),
-        getProducts(),
-      ]);
+    const results = await Promise.allSettled([
+      getProfile(token),
+      getProducts(),
+    ]);
 
-      if (profileData) {
+    const profileResult = results[0];
+    const productsResult = results[1];
+    const errors = [];
+
+    if (profileResult.status === "fulfilled") {
+      const data = profileResult.value;
+
+      if (data && typeof data === "object") {
         setProfile((previous) => ({
           ...previous,
-          ...profileData,
-          store_name: profileData.store_name || "Creator-Yard",
+          ...data,
+          store_name: data.store_name || previous.store_name || "Creator-Yard",
         }));
       }
-
-      // Show only client-brand records. Leave old shop products untouched.
-      const portfolioBrands = Array.isArray(productData)
-        ? productData.filter((item) => item.is_portfolio === true)
-        : [];
-
-      setBrands(portfolioBrands);
-    } catch (err) {
-      console.error("Dashboard loading failed:", err);
-      setError(
-        "Could not load your dashboard. Check that the backend is running and your profile token is correct."
-      );
-    } finally {
-      setLoading(false);
+    } else {
+      console.error("Profile loading failed:", profileResult.reason);
+      errors.push("Agency profile could not be loaded.");
     }
-  }
+
+    if (productsResult.status === "fulfilled") {
+      const data = productsResult.value;
+
+      setBrands(
+        Array.isArray(data)
+          ? data.filter((item) => item.is_portfolio === true)
+          : []
+      );
+    } else {
+      console.error("Client brand loading failed:", productsResult.reason);
+      errors.push("Client brands could not be loaded.");
+    }
+
+    if (errors.length) {
+      setError(
+        `${errors.join(" ")} Check that the backend is running and that your account has the required access.`
+      );
+    }
+
+    setLoading(false);
+  }, [token]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function runLoad() {
+      if (!active) return;
+      await loadDashboard();
+    }
+
+    runLoad();
+
+    return () => {
+      active = false;
+    };
+  }, [loadDashboard]);
 
   function handleProfileChange(event) {
     const { name, value } = event.target;
+
     setProfile((previous) => ({
       ...previous,
       [name]: value,
@@ -103,32 +231,40 @@ function Dashboard() {
     setNotice("");
     setError("");
 
-    try {
-      const payload = {
-        store_name: profile.store_name.trim() || "Creator-Yard",
-        logo_type: profile.logo_type || "both",
-        facebook: profile.facebook.trim(),
-        instagram: profile.instagram.trim(),
-        tiktok: profile.tiktok.trim(),
-        twitter: profile.twitter.trim(),
-        whatsapp: profile.whatsapp.trim(),
-        email: profile.email.trim(),
-        phone: profile.phone.trim(),
-        address: profile.address.trim(),
-        ceo_name: profile.ceo_name || "",
-        tagline: profile.tagline || "",
-        description: profile.description || "",
-      };
+    const payload = {
+      store_name: profile.store_name.trim() || "Creator-Yard",
+      logo_type: profile.logo_type || "both",
+      logo: profile.logo || "",
+      facebook: profile.facebook.trim(),
+      instagram: profile.instagram.trim(),
+      tiktok: profile.tiktok.trim(),
+      twitter: profile.twitter.trim(),
+      whatsapp: profile.whatsapp.trim(),
+      email: profile.email.trim(),
+      phone: profile.phone.trim(),
+      address: profile.address.trim(),
+      ceo_name: profile.ceo_name || "",
+      tagline: profile.tagline || "",
+      description: profile.description || "",
+    };
 
+    try {
       await saveProfile(payload);
+
       setProfile((previous) => ({
         ...previous,
         ...payload,
       }));
+
       setNotice("Agency profile and contact details saved successfully.");
     } catch (err) {
       console.error("Profile save failed:", err);
-      setError("Could not save your profile. Please check the backend and try again.");
+      setError(
+        getErrorMessage(
+          err,
+          "Could not save your profile. Check your permissions and try again."
+        )
+      );
     } finally {
       setSavingProfile(false);
     }
@@ -147,17 +283,20 @@ function Dashboard() {
     try {
       const result = await uploadLogo(file);
 
+      if (!result?.url) {
+        throw new Error("The upload response did not include an image URL.");
+      }
+
       setProfile((previous) => ({
         ...previous,
         logo: result.url,
-        logo_type:
-          previous.logo_type === "text" ? "both" : previous.logo_type || "both",
+        logo_type: previous.logo_type === "text" ? "both" : previous.logo_type || "both",
       }));
 
-      setNotice("Logo uploaded successfully. Save your profile to retain your other changes.");
+      setNotice("Logo uploaded. Save your agency profile to retain the changes.");
     } catch (err) {
       console.error("Logo upload failed:", err);
-      setError("Logo upload failed. Please try again.");
+      setError(getErrorMessage(err, "Logo upload failed."));
     } finally {
       setUploadingLogo(false);
     }
@@ -165,6 +304,7 @@ function Dashboard() {
 
   function handleBrandChange(event) {
     const { name, value } = event.target;
+
     setBrandForm((previous) => ({
       ...previous,
       [name]: value,
@@ -183,26 +323,27 @@ function Dashboard() {
 
     try {
       const result = await uploadProductImage(file);
+
+      if (!result?.url) {
+        throw new Error("The upload response did not include an image URL.");
+      }
+
       setBrandForm((previous) => ({
         ...previous,
         image: result.url,
       }));
-      setNotice("Brand logo uploaded successfully.");
+
+      setNotice("Client brand logo uploaded successfully.");
     } catch (err) {
       console.error("Brand image upload failed:", err);
-      setError("Could not upload the brand logo. Please try again.");
+      setError(getErrorMessage(err, "Could not upload the client brand logo."));
     } finally {
       setUploadingBrandImage(false);
     }
   }
 
   function resetBrandForm() {
-    setBrandForm({
-      name: "",
-      link: "",
-      description: "",
-      image: "",
-    });
+    setBrandForm(EMPTY_BRAND);
     setEditingBrandId(null);
   }
 
@@ -213,9 +354,11 @@ function Dashboard() {
       description: brand.description || "",
       image: brand.image || "",
     });
+
     setEditingBrandId(brand.id);
     setNotice("");
     setError("");
+
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -223,7 +366,7 @@ function Dashboard() {
     event.preventDefault();
 
     if (!brandForm.name.trim()) {
-      setError("Please enter the brand name.");
+      setError("Please enter the client or brand name.");
       return;
     }
 
@@ -245,41 +388,34 @@ function Dashboard() {
     try {
       if (editingBrandId !== null) {
         await updateProduct(editingBrandId, payload);
-        setNotice("Client brand updated successfully.");
       } else {
         await createProduct(payload);
-        setNotice("Client brand added successfully.");
       }
 
       resetBrandForm();
-      await loadBrands();
+      setNotice(
+        editingBrandId !== null
+          ? "Client brand updated successfully."
+          : "Client brand added successfully."
+      );
+
+      await loadDashboard();
     } catch (err) {
       console.error("Brand save failed:", err);
       setError(
-        "Could not save the brand. Confirm that the backend supports the link and is_portfolio fields."
+        getErrorMessage(
+          err,
+          "Could not save the client brand. Check your account permissions and backend."
+        )
       );
     } finally {
       setSavingBrand(false);
     }
   }
 
-  async function loadBrands() {
-    try {
-      const productData = await getProducts();
-      setBrands(
-        Array.isArray(productData)
-          ? productData.filter((item) => item.is_portfolio === true)
-          : []
-      );
-    } catch (err) {
-      console.error("Could not refresh client brands:", err);
-      setError("The brand was saved, but the brand list could not be refreshed.");
-    }
-  }
-
   async function handleDeleteBrand(brand) {
     const confirmed = window.confirm(
-      `Remove "${brand.name}" from your client brands? This will delete only this portfolio record.`
+      `Remove "${brand.name}" from the client portfolio?`
     );
 
     if (!confirmed) return;
@@ -288,45 +424,80 @@ function Dashboard() {
     setError("");
 
     try {
-      // The list contains portfolio records only, never ordinary shop products.
       await deleteProduct(brand.id);
-      setBrands((previous) => previous.filter((item) => item.id !== brand.id));
+
+      setBrands((previous) =>
+        previous.filter((item) => item.id !== brand.id)
+      );
 
       if (editingBrandId === brand.id) {
         resetBrandForm();
       }
 
-      setNotice("Client brand removed.");
+      setNotice("Client brand removed successfully.");
     } catch (err) {
       console.error("Brand deletion failed:", err);
-      setError("Could not remove this brand. Please try again.");
+      setError(
+        getErrorMessage(
+          err,
+          "Could not remove this brand. Check your account permissions and try again."
+        )
+      );
     }
   }
 
-  function normalizeUrl(value) {
-    const trimmed = (value || "").trim();
-    if (!trimmed) return "";
-    if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed;
-    return `https://${trimmed}`;
-  }
+  const accountName = getAccountName(currentUser);
+  const accountRole = getAccountRole(currentUser);
 
   if (loading) {
     return (
       <main className="dashboard profile-page">
-        <div className="settings-card">
-          <p>Loading Creator-Yard dashboard...</p>
-        </div>
+        <header className="cy-settings-topbar">
+          <div className="cy-settings-heading">
+            <div className="cy-settings-eyebrow">CREATOR YARD / WORKSPACE</div>
+            <h1>Agency settings</h1>
+            <p>Loading your agency workspace...</p>
+          </div>
+        </header>
+
+        <section className="settings-card" aria-live="polite">
+          <p>Loading agency profile and client brands...</p>
+        </section>
       </main>
     );
   }
 
   return (
     <main className="dashboard profile-page">
-      <header className="dashboard-header">
-        <h1>Creator-Yard Dashboard</h1>
-        <p>
-          Manage your agency identity, contact information, and client brands.
-        </p>
+      <header className="cy-settings-topbar">
+        <div className="cy-settings-heading">
+          <div className="cy-settings-eyebrow">CREATOR YARD / WORKSPACE</div>
+          <h1>Agency settings</h1>
+          <p>
+            Manage your agency identity, business contacts, and client portfolio.
+          </p>
+        </div>
+
+        <div className="cy-settings-user">
+          <div className="cy-settings-avatar" aria-hidden="true">
+            {accountLoading ? "…" : getInitials(accountName)}
+          </div>
+
+          <div className="cy-settings-user-info">
+            <strong>
+              {accountLoading
+                ? "Loading account..."
+                : accountName || "Account unavailable"}
+            </strong>
+            <span>
+              {accountLoading
+                ? "Checking access"
+                : currentUser
+                  ? accountRole
+                  : "Sign-in required"}
+            </span>
+          </div>
+        </div>
       </header>
 
       {notice && (
@@ -342,13 +513,13 @@ function Dashboard() {
       )}
 
       <section className="settings-card">
-        <h2>Agency Branding</h2>
-        <p>Set the name and logo used to represent your agency.</p>
+        <h2>Agency branding</h2>
+        <p>Manage the name and logo used to represent Creator Yard.</p>
 
         <form onSubmit={handleSaveProfile}>
           <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="store_name">Agency Name</label>
+              <label htmlFor="store_name">Agency name</label>
               <input
                 id="store_name"
                 name="store_name"
@@ -360,7 +531,7 @@ function Dashboard() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="logo_type">Logo Display</label>
+              <label htmlFor="logo_type">Logo display</label>
               <select
                 id="logo_type"
                 name="logo_type"
@@ -375,7 +546,7 @@ function Dashboard() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="agency-logo">Agency Logo</label>
+            <label htmlFor="agency-logo">Agency logo</label>
             <input
               id="agency-logo"
               type="file"
@@ -386,7 +557,7 @@ function Dashboard() {
             <small>
               {uploadingLogo
                 ? "Uploading logo..."
-                : "Choose an image file to upload your agency logo."}
+                : "Choose a clear image for your agency logo."}
             </small>
           </div>
 
@@ -394,7 +565,7 @@ function Dashboard() {
             <div className="image-preview">
               <img
                 src={getUploadUrl(profile.logo)}
-                alt="Creator-Yard agency logo"
+                alt="Creator Yard agency logo"
                 style={{
                   maxWidth: "180px",
                   maxHeight: "140px",
@@ -405,18 +576,17 @@ function Dashboard() {
           )}
 
           <div className="form-actions">
-            <button type="submit" disabled={savingProfile}>
-              {savingProfile ? "Saving..." : "Save Agency Branding"}
+            <button type="submit" disabled={savingProfile || uploadingLogo}>
+              {savingProfile ? "Saving..." : "Save agency branding"}
             </button>
           </div>
         </form>
       </section>
 
       <section className="settings-card">
-        <h2>Social Media & Contact</h2>
+        <h2>Social media and contact</h2>
         <p>
-          These details are for Creator-Yard and will be used by the website
-          footer and contact links.
+          These details can be used for the agency website footer and contact links.
         </p>
 
         <form onSubmit={handleSaveProfile}>
@@ -466,18 +636,18 @@ function Dashboard() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="whatsapp">WhatsApp Number or Link</label>
+              <label htmlFor="whatsapp">WhatsApp number or link</label>
               <input
                 id="whatsapp"
                 name="whatsapp"
                 value={profile.whatsapp || ""}
                 onChange={handleProfileChange}
-                placeholder="08012345678 or https://wa.me/2348012345678"
+                placeholder="08012345678 or https://wa.me/234..."
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Business Email</label>
+              <label htmlFor="email">Business email</label>
               <input
                 id="email"
                 name="email"
@@ -489,7 +659,7 @@ function Dashboard() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">Business Phone</label>
+              <label htmlFor="phone">Business phone</label>
               <input
                 id="phone"
                 name="phone"
@@ -501,7 +671,7 @@ function Dashboard() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="address">Business Address (Optional)</label>
+              <label htmlFor="address">Business address (optional)</label>
               <input
                 id="address"
                 name="address"
@@ -514,24 +684,23 @@ function Dashboard() {
 
           <div className="form-actions">
             <button type="submit" disabled={savingProfile}>
-              {savingProfile ? "Saving..." : "Save Contact Details"}
+              {savingProfile ? "Saving..." : "Save contact details"}
             </button>
           </div>
         </form>
       </section>
 
       <section className="settings-card">
-        <h2>Brands We&apos;ve Worked With</h2>
+        <h2>Brands we’ve worked with</h2>
         <p>
-          Add client or partner brands to display their logos on your
-          portfolio. You can optionally link each logo to a website or social
-          media page.
+          Manage client and partner logos displayed in your portfolio. Add a
+          website or social media link if available.
         </p>
 
         <form onSubmit={handleSaveBrand}>
           <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="brand-name">Brand Name</label>
+              <label htmlFor="brand-name">Brand name</label>
               <input
                 id="brand-name"
                 name="name"
@@ -543,7 +712,7 @@ function Dashboard() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="brand-link">Website or Social Link (Optional)</label>
+              <label htmlFor="brand-link">Website or social link (optional)</label>
               <input
                 id="brand-link"
                 name="link"
@@ -556,19 +725,19 @@ function Dashboard() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="brand-description">Short Description (Optional)</label>
+            <label htmlFor="brand-description">Description (optional)</label>
             <textarea
               id="brand-description"
               name="description"
               value={brandForm.description}
               onChange={handleBrandChange}
-              placeholder="Briefly describe the work or partnership"
+              placeholder="Briefly describe the work or partnership."
               rows={3}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="brand-image">Brand Logo</label>
+            <label htmlFor="brand-image">Client brand logo</label>
             <input
               id="brand-image"
               type="file"
@@ -579,7 +748,7 @@ function Dashboard() {
             <small>
               {uploadingBrandImage
                 ? "Uploading brand logo..."
-                : "Upload the client's logo. Use a clear image with a transparent background where possible."}
+                : "Use a clear logo image. Transparent PNG files work well."}
             </small>
           </div>
 
@@ -587,7 +756,7 @@ function Dashboard() {
             <div className="image-preview">
               <img
                 src={getUploadUrl(brandForm.image)}
-                alt="Selected brand logo preview"
+                alt="Client brand logo preview"
                 style={{
                   maxWidth: "180px",
                   maxHeight: "120px",
@@ -598,24 +767,27 @@ function Dashboard() {
           )}
 
           <div className="form-actions">
-            <button type="submit" disabled={savingBrand || uploadingBrandImage}>
+            <button
+              type="submit"
+              disabled={savingBrand || uploadingBrandImage}
+            >
               {savingBrand
                 ? "Saving..."
                 : editingBrandId !== null
-                  ? "Update Brand"
-                  : "Add Brand"}
+                  ? "Update brand"
+                  : "Add brand"}
             </button>
 
             {editingBrandId !== null && (
               <button type="button" onClick={resetBrandForm}>
-                Cancel Edit
+                Cancel edit
               </button>
             )}
           </div>
         </form>
 
         <div className="portfolio-brand-list">
-          <h3>Saved Client Brands ({brands.length})</h3>
+          <h3>Saved client brands ({brands.length})</h3>
 
           {brands.length === 0 ? (
             <p>No client brands added yet. Add your first brand above.</p>
@@ -647,7 +819,7 @@ function Dashboard() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Visit brand link ↗
+                          Visit brand link →
                         </a>
                       </p>
                     )}
@@ -660,6 +832,7 @@ function Dashboard() {
                     >
                       Edit
                     </button>
+
                     <button
                       type="button"
                       onClick={() => handleDeleteBrand(brand)}

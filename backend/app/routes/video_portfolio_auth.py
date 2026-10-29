@@ -7,6 +7,12 @@ import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
+from pathlib import Path
+from dotenv import load_dotenv
+
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(BACKEND_ROOT / ".env", override=False)
+
 
 router = APIRouter(prefix="/video-portfolio/admin", tags=["Video Portfolio Admin Auth"])
 

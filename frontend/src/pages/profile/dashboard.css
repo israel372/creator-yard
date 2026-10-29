@@ -1,768 +1,660 @@
 
-/* ========================================
-   Creator-Yard Dashboard
-   Responsive settings and portfolio styles
-======================================== */
+/* =========================================================
+   CREATOR YARD — AGENCY DASHBOARD
+   File: frontend/src/pages/dashboard.css
+   ========================================================= */
 
 :root {
-  --primary: #6d28d9;
-  --primary-hover: #5b21b6;
-  --text: #222222;
-  --muted: #777777;
-  --border: #e5e5e5;
-  --surface: #ffffff;
-  --surface-soft: #faf9fc;
-  --danger: #dc2626;
-  --success: #15803d;
-  --radius: 14px;
-  --shadow: 0 6px 24px rgba(25, 15, 45, 0.06);
+  --cy-purple: #7c20ff;
+  --cy-purple-dark: #5b13c7;
+  --cy-purple-light: #f2eaff;
+  --cy-ink: #171323;
+  --cy-muted: #777184;
+  --cy-border: #e8e3ef;
+  --cy-surface: #ffffff;
+  --cy-background: #f7f6fa;
+  --cy-success: #16794b;
+  --cy-success-bg: #eaf8f0;
+  --cy-danger: #b42335;
+  --cy-danger-bg: #fff0f1;
+  --cy-radius: 18px;
+  --cy-shadow: 0 8px 30px rgba(27, 15, 49, 0.055);
 }
 
-* {
+/* Page foundation */
+
+.dashboard.profile-page {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding: 36px clamp(16px, 4vw, 54px) 60px;
+  background:
+    radial-gradient(
+      ellipse at 90% 0%,
+      rgba(124, 32, 255, 0.065),
+      transparent 34%
+    ),
+    var(--cy-background);
+  color: var(--cy-ink);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+.dashboard.profile-page *,
+.dashboard.profile-page *::before,
+.dashboard.profile-page *::after {
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
+.dashboard.profile-page h1,
+.dashboard.profile-page h2,
+.dashboard.profile-page h3,
+.dashboard.profile-page h4,
+.dashboard.profile-page p {
+  margin-top: 0;
 }
 
-body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #ffffff;
-  color: var(--text);
-  line-height: 1.6;
+.dashboard.profile-page p {
+  color: var(--cy-muted);
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-img {
-  display: block;
+.dashboard.profile-page img {
   max-width: 100%;
 }
 
-/* ========================================
-   Main dashboard layout
-======================================== */
+/* Top header */
 
-.dashboard,
-.profile-page {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 36px 24px 60px;
-}
-
-.dashboard-header,
-.profile-header {
+.cy-settings-topbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 28px;
+  justify-content: space-between;
+  gap: 28px;
+  margin: 0 auto 30px;
+  max-width: 1250px;
+  padding: 28px 30px;
+  border: 1px solid rgba(124, 32, 255, 0.1);
+  border-radius: 22px;
+  background: var(--cy-surface);
+  box-shadow: var(--cy-shadow);
 }
 
-.dashboard-header h1,
-.profile-header h1 {
-  font-size: clamp(26px, 3vw, 36px);
-  line-height: 1.25;
-  font-weight: 750;
-  color: var(--text);
-  overflow-wrap: anywhere;
+.cy-settings-heading {
+  min-width: 0;
 }
 
-.dashboard-header p,
-.profile-header p {
-  color: var(--muted);
-  margin-top: 8px;
+.cy-settings-eyebrow {
+  margin-bottom: 9px;
+  color: var(--cy-purple);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  line-height: 1.5;
+}
+
+.cy-settings-heading h1 {
+  margin-bottom: 7px;
+  color: var(--cy-ink);
+  font-size: clamp(27px, 3vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+
+.cy-settings-heading p {
+  max-width: 570px;
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+.cy-settings-user {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-shrink: 0;
+  max-width: 310px;
+  padding: 11px 15px 11px 11px;
+  border: 1px solid var(--cy-border);
+  border-radius: 15px;
+  background: #fff;
+}
+
+.cy-settings-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #7c20ff, #b66aff);
+  box-shadow: 0 4px 12px rgba(124, 32, 255, 0.2);
+  color: #fff;
   font-size: 15px;
+  font-weight: 800;
 }
 
-.dashboard > form {
-  width: 100%;
+.cy-settings-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
 }
 
-/* ========================================
-   Settings cards
-======================================== */
+.cy-settings-user-info strong {
+  overflow: hidden;
+  color: var(--cy-ink);
+  font-size: 13px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cy-settings-user-info span {
+  color: var(--cy-muted);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* Main content width */
+
+.dashboard.profile-page > .settings-card,
+.dashboard.profile-page > .dashboard-notice,
+.dashboard.profile-page > .dashboard-error {
+  max-width: 1250px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.dashboard.profile-page > .settings-card {
+  margin-top: 22px;
+}
+
+/* Settings cards */
 
 .settings-card {
-  min-width: 0;
-  width: 100%;
-  padding: 26px;
-  margin-bottom: 24px;
-  background: var(--surface);
-  border: 1px solid #f0edf4;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  padding: clamp(21px, 3vw, 32px);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-radius);
+  background: var(--cy-surface);
+  box-shadow: var(--cy-shadow);
 }
 
 .settings-card h2 {
-  margin-bottom: 12px;
-  font-size: 22px;
+  margin-bottom: 6px;
+  color: var(--cy-ink);
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   line-height: 1.35;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.settings-card h3 {
-  margin-bottom: 16px;
-  font-size: 18px;
-  color: var(--text);
 }
 
 .settings-card > p {
+  margin-bottom: 25px;
+  font-size: 13px;
+}
+
+/* Form layouts */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 21px;
   margin-bottom: 20px;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-.top-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-/* ========================================
-   Forms and inputs
-======================================== */
-
-.form-grid,
-.social-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 22px;
 }
 
 .form-group {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  margin-bottom: 18px;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
-.form-group label,
-.settings-card label {
-  display: block;
-  margin-bottom: 8px;
-  color: #48404f;
-  font-size: 14px;
-  font-weight: 600;
+.form-grid .form-group {
+  margin-bottom: 0;
 }
 
-.form-group input:not([type="file"]):not([type="radio"]):not([type="checkbox"]),
-.form-group textarea,
+.form-group label {
+  color: #30283e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group input,
 .form-group select,
-.profile-input,
-.profile-textarea {
+.form-group textarea {
   display: block;
   width: 100%;
   min-width: 0;
-  min-height: 46px;
-  padding: 11px 14px;
-  color: var(--text);
-  background: #ffffff;
-  border: 1px solid #ded9e5;
-  border-radius: 9px;
-  font-size: 15px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 47px;
+  padding: 12px 14px;
+  border: 1px solid #ded8e8;
+  border-radius: 11px;
+  outline: none;
+  background: #fff;
+  color: var(--cy-ink);
+  font: inherit;
+  font-size: 13px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
-.form-group textarea,
-.profile-textarea {
-  min-height: 110px;
+.form-group textarea {
+  min-height: 105px;
   resize: vertical;
-  line-height: 1.6;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #a49bad;
 }
 
 .form-group input:focus,
-.form-group textarea:focus,
 .form-group select:focus,
-.profile-input:focus,
-.profile-textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.12);
+.form-group textarea:focus {
+  border-color: var(--cy-purple);
+  box-shadow: 0 0 0 4px rgba(124, 32, 255, 0.1);
 }
 
 .form-group input[type="file"] {
-  display: block;
-  width: 100%;
-  max-width: 100%;
+  min-height: auto;
   padding: 10px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  font-size: 13px;
+  background: #fcfbfe;
+  cursor: pointer;
 }
 
 .form-group input[type="file"]::file-selector-button {
   margin-right: 12px;
   padding: 8px 12px;
-  color: var(--primary);
-  background: #f1eafe;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.form-group input[type="radio"],
-.form-group input[type="checkbox"],
-.radio-group input[type="radio"] {
-  accent-color: var(--primary);
-}
-
-.radio-group {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  margin: 8px 0 18px;
-}
-
-.radio-group label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* ========================================
-   Image previews
-======================================== */
-
-.image-preview,
-.logo-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 210px;
-  margin: 10px 0 14px;
-  padding: 10px;
-  overflow: hidden;
-  color: #898292;
-  background: var(--surface-soft);
-  border: 2px dashed #d7d0e1;
-  border-radius: 12px;
-}
-
-.image-preview img,
-.logo-preview img,
-.preview-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  border: 0;
   border-radius: 7px;
+  background: var(--cy-purple-light);
+  color: var(--cy-purple-dark);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
 }
 
-.image-preview img[src=""],
-.logo-preview img[src=""] {
-  display: none;
+.form-group input:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
-/* ========================================
-   Buttons
-======================================== */
-
-.form-actions,
-.button-group,
-.button-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
+.form-group small {
+  color: var(--cy-muted);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
-.form-actions button,
-.button-group button,
-.button-actions button,
-.save-btn,
-.cancel-btn,
-.add-product-btn,
-.edit-btn,
-.delete-btn,
-.danger-button,
-.secondary-button {
+/* Buttons */
+
+.dashboard.profile-page button {
   display: inline-flex;
-  justify-content: center;
   align-items: center;
-  min-height: 44px;
-  padding: 11px 20px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 650;
-  text-align: center;
-  text-decoration: none;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 17px;
+  border: 1px solid var(--cy-purple);
+  border-radius: 10px;
+  background: var(--cy-purple);
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.4;
+  cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.form-actions button[type="submit"],
-.save-btn,
-.add-product-btn {
-  color: #ffffff;
-  background: var(--primary);
+.dashboard.profile-page button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--cy-purple-dark);
+  background: var(--cy-purple-dark);
+  box-shadow: 0 5px 13px rgba(124, 32, 255, 0.16);
 }
 
-.form-actions button[type="submit"]:hover,
-.save-btn:hover,
-.add-product-btn:hover {
-  background: var(--primary-hover);
+.dashboard.profile-page button:focus-visible {
+  outline: 3px solid rgba(124, 32, 255, 0.3);
+  outline-offset: 3px;
 }
 
-.secondary-button,
-.cancel-btn {
-  color: #403849;
-  background: #ffffff;
-  border-color: #ded9e5;
+.dashboard.profile-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.secondary-button:hover,
-.cancel-btn:hover {
-  background: #f7f5fa;
-  border-color: #c8bfd5;
-}
-
-.danger-button,
-.delete-btn {
-  color: #ffffff;
-  background: #ef4444;
-}
-
-.danger-button:hover,
-.delete-btn:hover {
-  background: var(--danger);
-}
-
-.edit-btn {
-  color: #ffffff;
-  background: var(--primary);
-}
-
-.edit-btn:hover {
-  background: var(--primary-hover);
-}
-
-.product-buttons,
-.product-actions {
+.form-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #f0edf4;
 }
 
-.product-actions > button {
-  flex: 1;
+.form-actions button[type="button"],
+.record-actions button:first-child {
+  border-color: #ded5ee;
+  background: #f4efff;
+  color: var(--cy-purple-dark);
 }
 
-.success-message,
-.error-message {
-  padding: 13px 16px;
-  margin-bottom: 20px;
-  border-radius: 9px;
-  font-size: 14px;
-  overflow-wrap: anywhere;
+.form-actions button[type="button"]:hover:not(:disabled),
+.record-actions button:first-child:hover:not(:disabled) {
+  border-color: #d1b9ff;
+  background: #e9ddff;
+  color: var(--cy-purple-dark);
+  box-shadow: none;
 }
 
-.success-message {
-  color: var(--success);
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+.record-actions button:last-child {
+  border-color: #f0cbd0;
+  background: #fff;
+  color: var(--cy-danger);
 }
 
-.error-message {
-  color: #b91c1c;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+.record-actions button:last-child:hover:not(:disabled) {
+  border-color: #e7a6ae;
+  background: var(--cy-danger-bg);
+  color: #9f1c2c;
+  box-shadow: none;
 }
 
-/* ========================================
-   Portfolio and projects
-======================================== */
+/* Image previews */
 
-.products-card {
-  margin-top: 24px;
-}
-
-.products-header {
+.image-preview {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-  margin-bottom: 22px;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 105px;
+  margin-top: 5px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px dashed #d9cceb;
+  border-radius: 13px;
+  background:
+    linear-gradient(45deg, #faf8fd 25%, transparent 25%),
+    linear-gradient(-45deg, #faf8fd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #faf8fd 75%),
+    linear-gradient(-45deg, transparent 75%, #faf8fd 75%);
+  background-color: #fff;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+  background-size: 16px 16px;
 }
 
-.products-header p,
-.product-limit {
-  color: var(--muted);
-  font-size: 14px;
+.image-preview img {
+  display: block;
+  border-radius: 5px;
 }
 
-.product-limit {
-  margin-bottom: 18px;
+/* Success and error notices */
+
+.dashboard-notice,
+.dashboard-error {
+  padding: 14px 17px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
 }
 
-.product-grid {
+.dashboard-notice {
+  border-color: #c5ead4;
+  background: var(--cy-success-bg);
+  color: var(--cy-success);
+}
+
+.dashboard-error {
+  border-color: #f0cbd0;
+  background: var(--cy-danger-bg);
+  color: var(--cy-danger);
+}
+
+.dashboard-notice + .settings-card,
+.dashboard-error + .settings-card {
+  margin-top: 20px;
+}
+
+/* Client portfolio list */
+
+.portfolio-brand-list {
+  margin-top: 34px;
+  padding-top: 25px;
+  border-top: 1px solid var(--cy-border);
+}
+
+.portfolio-brand-list h3 {
+  margin-bottom: 15px;
+  color: var(--cy-ink);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.portfolio-brand-list > p {
+  margin-bottom: 0;
+  padding: 22px;
+  border: 1px dashed #ddd4e9;
+  border-radius: 12px;
+  background: #fcfbfe;
+  font-size: 13px;
+  text-align: center;
+}
+
+.record-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 15px;
 }
 
-.empty-product {
-  min-width: 0;
-  padding: 20px;
-  background: var(--surface-soft);
-  border: 1px solid #ece7f1;
-  border-radius: 13px;
-}
-
-.product-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 180px;
-  margin-bottom: 18px;
-  overflow: hidden;
-  color: #898292;
-  background: #ffffff;
-  border: 2px dashed #d7d0e1;
-  border-radius: 10px;
-}
-
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.records-list,
-.review-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 26px;
-}
-
-.record-card,
-.review-item {
+.record-card {
   display: flex;
   align-items: flex-start;
-  gap: 18px;
+  gap: 15px;
   min-width: 0;
-  padding: 18px;
-  background: #ffffff;
-  border: 1px solid #ece7f1;
-  border-radius: 12px;
+  padding: 17px;
+  border: 1px solid var(--cy-border);
+  border-radius: 14px;
+  background: #fff;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
-.record-image {
-  flex: 0 0 120px;
-  width: 120px;
-  height: 100px;
-  object-fit: cover;
-  background: var(--surface-soft);
-  border-radius: 8px;
+.record-card:hover {
+  transform: translateY(-2px);
+  border-color: #d8c3ff;
+  box-shadow: 0 8px 22px rgba(27, 15, 49, 0.055);
 }
 
-.record-content,
-.review-info {
-  flex: 1 1 auto;
+.record-card > img {
+  flex: 0 0 90px;
+  padding: 5px;
+  border: 1px solid #f0edf4;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.record-details {
+  flex: 1;
   min-width: 0;
 }
 
-.record-content h4,
-.review-info h3 {
+.record-details h4 {
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
+  color: var(--cy-ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.record-details p {
   margin-bottom: 7px;
-  color: var(--text);
-  font-size: 17px;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.record-details a {
+  color: var(--cy-purple-dark);
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
   overflow-wrap: anywhere;
 }
 
-.record-content p,
-.review-info p {
-  color: #6b6572;
-  font-size: 14px;
-  line-height: 1.65;
-  overflow-wrap: anywhere;
+.record-details a:hover {
+  text-decoration: underline;
 }
 
-.record-actions,
-.review-actions {
+.record-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.record-actions button,
-.review-actions button {
-  min-height: 38px;
-  padding: 8px 13px;
-  border-radius: 7px;
-  font-size: 13px;
+.record-actions button {
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  font-size: 11px !important;
 }
 
-/* ========================================
-   Testimonials
-======================================== */
+/* Loading state */
 
-.review-form {
-  padding: 20px;
-  margin-bottom: 22px;
-  background: var(--surface-soft);
-  border: 1px solid #ece7f1;
-  border-radius: 12px;
+.dashboard.profile-page > .settings-card:only-child {
+  margin-top: 30px;
 }
 
-.review-form label {
-  display: block;
-  margin: 14px 0 8px;
-  color: #48404f;
-  font-size: 14px;
-  font-weight: 600;
+.dashboard.profile-page > .settings-card:only-child > p {
+  margin-bottom: 0;
 }
 
-.review-stars {
-  color: #e8a600;
-  font-size: 18px;
-}
-
-.review-actions {
-  margin-left: auto;
-}
-
-/* ========================================
-   Legacy-compatible styling
-   Keeps existing elements styled if reused
-======================================== */
-
-.social-card {
-  margin-top: 10px;
-}
-
-.profile-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.products-card,
-.settings-card,
-.record-card,
-.review-item {
-  overflow-wrap: anywhere;
-}
-
-/* ========================================
-   Tablet layout
-======================================== */
+/* Tablet */
 
 @media (max-width: 900px) {
-  .dashboard,
-  .profile-page {
-    padding: 28px 20px 44px;
+  .dashboard.profile-page {
+    padding: 25px 20px 45px;
   }
 
-  .top-grid,
-  .form-grid,
-  .social-grid,
-  .product-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .settings-card {
-    padding: 22px;
-  }
-
-  .dashboard-header,
-  .profile-header {
+  .cy-settings-topbar {
     align-items: flex-start;
+    padding: 23px;
   }
 
-  .record-card,
-  .review-item {
-    flex-wrap: wrap;
+  .cy-settings-user {
+    max-width: 245px;
   }
 
-  .record-actions,
-  .review-actions {
-    width: 100%;
-    margin-left: 0;
+  .record-list {
+    grid-template-columns: 1fr;
   }
 }
 
-/* ========================================
-   Mobile layout
-======================================== */
+/* Mobile */
 
-@media (max-width: 600px) {
-  .dashboard,
-  .profile-page {
-    padding: 20px 14px 36px;
+@media (max-width: 620px) {
+  .dashboard.profile-page {
+    padding: 16px 12px 35px;
   }
 
-  .dashboard-header,
-  .profile-header {
+  .cy-settings-topbar {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
-    margin-bottom: 22px;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 21px 18px;
+    border-radius: 16px;
   }
 
-  .dashboard-header h1,
-  .profile-header h1 {
-    font-size: 27px;
+  .cy-settings-heading h1 {
+    font-size: 28px;
   }
 
-  .dashboard-header p,
-  .profile-header p {
-    font-size: 14px;
+  .cy-settings-heading p {
+    font-size: 13px;
+  }
+
+  .cy-settings-user {
+    width: 100%;
+    max-width: none;
   }
 
   .settings-card {
-    padding: 18px 15px;
-    margin-bottom: 18px;
-    border-radius: 12px;
+    padding: 21px 17px;
+    border-radius: 15px;
   }
 
   .settings-card h2 {
-    font-size: 20px;
+    font-size: 19px;
   }
 
-  .form-group {
-    margin-bottom: 15px;
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 19px;
   }
 
-  .form-group input:not([type="file"]):not([type="radio"]):not([type="checkbox"]),
-  .form-group textarea,
-  .form-group select,
-  .profile-input,
-  .profile-textarea {
-    font-size: 16px;
-  }
-
-  .radio-group {
-    align-items: flex-start;
+  .form-actions {
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .record-card {
+    flex-wrap: wrap;
     gap: 12px;
-  }
-
-  .image-preview,
-  .logo-preview {
-    height: 170px;
-  }
-
-  .form-actions,
-  .button-group,
-  .button-actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .form-actions button,
-  .button-group button,
-  .button-actions button,
-  .save-btn,
-  .cancel-btn,
-  .add-product-btn {
-    width: 100%;
-  }
-
-  .products-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .record-card,
-  .review-item {
-    flex-direction: column;
     padding: 14px;
   }
 
-  .record-image {
-    flex: auto;
-    width: 100%;
-    height: 180px;
+  .record-card > img {
+    flex-basis: 70px;
+    width: 70px !important;
+    height: 65px !important;
   }
 
-  .record-actions,
-  .review-actions,
-  .product-actions {
-    width: 100%;
-    margin-left: 0;
+  .record-details {
+    flex-basis: calc(100% - 90px);
   }
 
-  .record-actions button,
-  .review-actions button {
+  .record-actions {
+    flex-direction: row;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid #f0edf4;
+  }
+
+  .record-actions button {
     flex: 1;
   }
-
-  .review-form {
-    padding: 15px;
-  }
 }
 
-/* ========================================
-   Small mobile screens
-======================================== */
+/* Reduced motion accessibility */
 
-@media (max-width: 360px) {
-  .dashboard,
-  .profile-page {
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-
-  .settings-card {
-    padding: 14px 12px;
-  }
-
-  .dashboard-header h1,
-  .profile-header h1 {
-    font-size: 24px;
-  }
-
-  .record-actions,
-  .review-actions,
-  .product-actions {
-    flex-direction: column;
-  }
-
-  .record-actions button,
-  .review-actions button,
-  .product-actions button {
-    width: 100%;
-  }
-}
-
-/* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  .dashboard.profile-page *,
+  .dashboard.profile-page *::before,
+  .dashboard.profile-page *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;

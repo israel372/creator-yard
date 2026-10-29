@@ -32,6 +32,7 @@ export async function saveProfile(profileData) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(profileData),
   });
@@ -52,6 +53,7 @@ export async function uploadLogo(file) {
 
   const response = await fetch(`${API_BASE}/profile/logo`, {
     method: "POST",
+    headers: accountAuthHeaders(),
     body: formData,
   });
 
@@ -71,6 +73,7 @@ export async function uploadHero(file) {
     `${API_BASE}/profile/hero`,
     {
       method: "POST",
+      headers: accountAuthHeaders(),
       body: formData,
     }
   );
@@ -90,6 +93,7 @@ export async function uploadProductImage(file) {
 
   const response = await fetch(`${API_BASE}/products/upload`, {
     method: "POST",
+    headers: accountAuthHeaders(),
     body: formData,
   });
 
@@ -106,6 +110,7 @@ export async function createProduct(product) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(product),
   });
@@ -130,6 +135,7 @@ export async function getProducts() {
 export async function deleteProduct(id) {
   const response = await fetch(`${API_BASE}/products/${id}`, {
     method: "DELETE",
+    headers: accountAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -145,6 +151,7 @@ export async function updateProduct(id, product) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(product),
   });
@@ -181,17 +188,31 @@ export async function updateReview(id, review) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(review),
   });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to update review");
+  }
 
   return response.json();
 }
 
 export async function deleteReview(id) {
-  await fetch(`${API_BASE}/reviews/${id}`, {
+  const response = await fetch(`${API_BASE}/reviews/${id}`, {
     method: "DELETE",
+    headers: accountAuthHeaders(),
   });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to delete review");
+  }
+
+  return response.json();
 }
 
 
@@ -414,4 +435,104 @@ export async function publishVideoProductionContent(token) {
   }
 
   return data;
+}
+
+// Creator Yard staff and owner accounts.
+// This token is intentionally separate from the video-production admin token.
+const ACCOUNT_TOKEN_KEY = "cy_account_token";
+
+export function getAccountToken() {
+  return sessionStorage.getItem(ACCOUNT_TOKEN_KEY) || "";
+}
+
+function accountAuthHeaders() {
+  const token = getAccountToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function saveAccountToken(token) {
+  if (!token) {
+    throw new Error("A valid account token is required.");
+  }
+
+  sessionStorage.setItem(ACCOUNT_TOKEN_KEY, token);
+}
+
+export function logoutUserAccount() {
+  sessionStorage.removeItem(ACCOUNT_TOKEN_KEY);
+}
+
+async function accountRequest(path, options = {}) {
+  const token = getAccountToken();
+  const headers = {
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Account request failed.");
+  }
+
+  return data;
+}
+
+export async function registerUserAccount(account) {
+  return accountRequest("/accounts/register", {
+    method: "POST",
+    body: JSON.stringify(account),
+  });
+}
+
+export async function setupOwnerAccount(account) {
+  const data = await accountRequest("/accounts/setup-owner", {
+    method: "POST",
+    body: JSON.stringify(account),
+  });
+
+  if (!data.access_token || !data.user) {
+    throw new Error("The server returned an incomplete owner setup response.");
+  }
+
+  saveAccountToken(data.access_token);
+  return data;
+}
+
+export async function loginUserAccount(email, password) {
+  const data = await accountRequest("/accounts/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!data.access_token || !data.user) {
+    throw new Error("The server returned an incomplete login response.");
+  }
+
+  saveAccountToken(data.access_token);
+  return data;
+}
+
+export async function getCurrentUserAccount() {
+  return accountRequest("/accounts/me");
+}
+
+export async function getManagedAccounts() {
+  return accountRequest("/accounts/users");
+}
+
+export async function getPendingAccounts() {
+  return accountRequest("/accounts/pending");
+}
+
+export async function updateManagedAccount(userId, access) {
+  return accountRequest(`/accounts/${userId}/access`, {
+    method: "PATCH",
+    body: JSON.stringify(access),
+  });
 }

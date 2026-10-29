@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +6,8 @@ from sqlalchemy import text
 
 from app.database import Base, engine
 from app.models.video_production_content import VideoProductionContent
+from app.models.user_account import UserAccount
+from app.routes import user_accounts
 from app.routes import video_production_content
 from app.routes import (
     profile, product, review, referral, video_portfolio,
@@ -95,6 +97,7 @@ app.include_router(video_portfolio.router)
 app.include_router(video_portfolio_admin.router)
 app.include_router(video_portfolio_auth.router)
 app.include_router(video_portfolio_upload.router)
+app.include_router(user_accounts.router)
 app.include_router(video_production_content.router)
 
 

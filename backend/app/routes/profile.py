@@ -3,6 +3,7 @@ import secrets
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.routes.user_accounts import require_permission
 from app.models.profile import Profile
 from app.schemas.profile import ProfileCreate, ProfileResponse
 from fastapi import UploadFile, File
@@ -20,7 +21,8 @@ router = APIRouter(
 @router.post("/", response_model=ProfileResponse)
 def save_profile(
     profile: ProfileCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_profile")),
 ):
 
     
@@ -82,7 +84,8 @@ def save_profile(
 @router.post("/logo")
 def upload_logo(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_profile")),
 ):
     # Upload to Supabase
     image = save_image(file, folder="logos")
@@ -130,7 +133,8 @@ def upload_logo(
 @router.post("/hero")
 def upload_hero(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_profile")),
 ):
     image = save_image(file, folder="hero")
 
@@ -248,7 +252,8 @@ def get_profile(
 def update_profile(
     profile_token: str,
     profile: ProfileCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_profile")),
 ):
     existing_profile = db.query(Profile).filter(
         Profile.profile_token == profile_token
