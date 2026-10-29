@@ -231,6 +231,8 @@ ALLOWED_PERMISSIONS = {
     "manage_reviews",
     "manage_video_portfolio",
     "manage_video_content",
+    "manage_homepage_content",
+    "manage_retail_content",
     "view_reports",
 }
 
@@ -455,3 +457,4 @@ def update_account_access(
         "message": "Account access updated.",
         "account": public_account(user),
     }
+

@@ -1,7 +1,10 @@
+
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import videoProductionDefaults from "../videoProductionDefaults.js";
 import {
-  loginVideoPortfolioAdmin,
+  getAccountToken,
+  logoutUserAccount,
   getAdminVideoProductionContent,
   saveVideoProductionDraft,
   publishVideoProductionContent,
@@ -15,7 +18,6 @@ const C = {
   lime: "#c4f56a",
   text: "#f1f3ed",
   muted: "#929b90",
-  red: "#ff7777",
 };
 
 const inputStyle = {
@@ -47,18 +49,11 @@ const primaryButton = {
   border: "1px solid transparent",
 };
 
-const labelStyle = {
-  display: "block",
-  fontSize: 13,
-  color: C.muted,
-  marginBottom: 7,
-};
-
 export default function VideoProductionContentAdmin() {
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem("cy_video_admin_token") || ""
-  );
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  // Use the same account token as the central Creator Yard login.
+  const [token, setToken] = useState(() => getAccountToken());
   const [contentText, setContentText] = useState("{}");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -67,23 +62,36 @@ export default function VideoProductionContentAdmin() {
   const [published, setPublished] = useState(false);
 
   async function loadContent(activeToken = token) {
+    if (!activeToken) {
+      navigate("/account", { replace: true });
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
       const data = await getAdminVideoProductionContent(activeToken);
+
       const savedContent =
         data.content && Object.keys(data.content).length > 0
           ? data.content
           : videoProductionDefaults;
+
       setContentText(JSON.stringify(savedContent, null, 2));
       setPublished(Boolean(data.is_published));
     } catch (err) {
-      setError(err.message || "Could not load page content.");
+      const message = err.message || "Could not load page content.";
+      setError(message);
 
-      if (/401|expired|authentication|admin token/i.test(err.message || "")) {
-        sessionStorage.removeItem("cy_video_admin_token");
+      if (
+        /401|unauthorized|expired|authentication|please sign in|invalid.*token|credentials/i.test(
+          message
+        )
+      ) {
+        logoutUserAccount();
         setToken("");
+        navigate("/account", { replace: true });
       }
     } finally {
       setLoading(false);
@@ -91,33 +99,23 @@ export default function VideoProductionContentAdmin() {
   }
 
   useEffect(() => {
-    if (token) loadContent(token);
-  }, [token]);
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const data = await loginVideoPortfolioAdmin(password);
-      sessionStorage.setItem("cy_video_admin_token", data.access_token);
-      setToken(data.access_token);
-      setPassword("");
-      setNotice("Welcome to the Video Production Page Editor.");
-    } catch (err) {
-      setError(err.message || "Login failed.");
-    } finally {
-      setLoading(false);
+    if (!token) {
+      navigate("/account", { replace: true });
+      return;
     }
-  }
+
+    loadContent(token);
+    // Load the editor when the account token changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, navigate]);
 
   function logout() {
-    sessionStorage.removeItem("cy_video_admin_token");
+    logoutUserAccount();
     setToken("");
     setContentText("{}");
     setNotice("");
     setError("");
+    navigate("/account", { replace: true });
   }
 
   function parseContent() {
@@ -137,20 +135,25 @@ export default function VideoProductionContentAdmin() {
       if (err instanceof SyntaxError) {
         throw new Error(`Invalid JSON: ${err.message}`);
       }
+
       throw err;
     }
   }
 
   async function handleSave(event) {
     event.preventDefault();
+
     setSaving(true);
     setError("");
     setNotice("");
 
     try {
       const content = parseContent();
+
       await saveVideoProductionDraft(content, token);
+
       setNotice("Draft saved. It is not live until you publish it.");
+
       await loadContent(token);
     } catch (err) {
       setError(err.message || "Could not save draft.");
@@ -169,7 +172,9 @@ export default function VideoProductionContentAdmin() {
 
       // Save the latest editor contents before publishing.
       await saveVideoProductionDraft(content, token);
+
       const result = await publishVideoProductionContent(token);
+
       setPublished(Boolean(result.is_published));
       setNotice("Page content published successfully.");
     } catch (err) {
@@ -179,72 +184,9 @@ export default function VideoProductionContentAdmin() {
     }
   }
 
+  // Unauthenticated visitors are sent to the central account login.
   if (!token) {
-    return (
-      <main
-        style={{
-          minHeight: "100vh",
-          background: C.bg,
-          color: C.text,
-          display: "grid",
-          placeItems: "center",
-          padding: 20,
-          fontFamily: "Inter, system-ui, sans-serif",
-        }}
-      >
-        <form
-          onSubmit={handleLogin}
-          style={{
-            width: "100%",
-            maxWidth: 420,
-            boxSizing: "border-box",
-            background: C.panel,
-            border: `1px solid ${C.border}`,
-            borderRadius: 18,
-            padding: 30,
-          }}
-        >
-          <div style={{ color: C.lime, fontWeight: 900, letterSpacing: 2 }}>
-            CREATOR-YARD
-          </div>
-          <p style={{ color: C.muted, fontSize: 12, letterSpacing: 2 }}>
-            VIDEO PRODUCTION PAGE CMS
-          </p>
-          <h1 style={{ fontSize: 28, marginBottom: 8 }}>Manage your page.</h1>
-          <p style={{ color: C.muted, marginBottom: 25 }}>
-            Sign in with your existing admin password.
-          </p>
-
-          <label htmlFor="cms-admin-password" style={labelStyle}>
-            Admin password
-          </label>
-          <input
-            id="cms-admin-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            maxLength={200}
-            style={{ ...inputStyle, marginBottom: 16 }}
-          />
-
-          {error && (
-            <p role="alert" style={{ color: C.red, fontSize: 13 }}>
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ ...primaryButton, width: "100%", padding: 13 }}
-          >
-            {loading ? "Signing in…" : "Sign in →"}
-          </button>
-        </form>
-      </main>
-    );
+    return null;
   }
 
   return (
@@ -272,15 +214,34 @@ export default function VideoProductionContentAdmin() {
         }}
       >
         <div>
-          <div style={{ color: C.lime, fontWeight: 900, letterSpacing: 1 }}>
+          <div
+            style={{
+              color: C.lime,
+              fontWeight: 900,
+              letterSpacing: 1,
+            }}
+          >
             CREATOR-YARD
           </div>
-          <div style={{ color: C.muted, fontSize: 11, marginTop: 6 }}>
+
+          <div
+            style={{
+              color: C.muted,
+              fontSize: 11,
+              marginTop: 6,
+            }}
+          >
             CREATIVE STUDIO
           </div>
         </div>
 
-        <div style={{ color: C.lime, fontWeight: 700, lineHeight: 1.8 }}>
+        <div
+          style={{
+            color: C.lime,
+            fontWeight: 700,
+            lineHeight: 1.8,
+          }}
+        >
           ▦ &nbsp; Page content editor
         </div>
 
@@ -301,10 +262,23 @@ export default function VideoProductionContentAdmin() {
         </a>
 
         <div style={{ marginTop: "auto" }}>
-          <div style={{ color: C.muted, fontSize: 12, marginBottom: 12 }}>
-            {published ? "A published version exists" : "Not yet published"}
+          <div
+            style={{
+              color: C.muted,
+              fontSize: 12,
+              marginBottom: 12,
+            }}
+          >
+            {published
+              ? "A published version exists"
+              : "Not yet published"}
           </div>
-          <button style={{ ...buttonStyle, width: "100%" }} onClick={logout}>
+
+          <button
+            type="button"
+            style={{ ...buttonStyle, width: "100%" }}
+            onClick={logout}
+          >
             Sign out
           </button>
         </div>
@@ -318,16 +292,30 @@ export default function VideoProductionContentAdmin() {
         }}
       >
         <header style={{ marginBottom: 28 }}>
-          <div style={{ color: C.lime, fontSize: 12, letterSpacing: 2 }}>
+          <div
+            style={{
+              color: C.lime,
+              fontSize: 12,
+              letterSpacing: 2,
+            }}
+          >
             CONTENT MANAGEMENT
           </div>
-          <h1 style={{ fontSize: "clamp(26px, 4vw, 36px)", margin: "8px 0" }}>
+
+          <h1
+            style={{
+              fontSize: "clamp(26px, 4vw, 36px)",
+              margin: "8px 0",
+            }}
+          >
             Video Production Page
           </h1>
+
           <p style={{ color: C.muted, lineHeight: 1.7 }}>
-            Edit the page content as JSON. Text, image URLs, buttons, services,
-            process steps and packages can be represented in this content object.
-            Save a draft before publishing changes to visitors.
+            Edit the page content as JSON. Text, image URLs, buttons,
+            services, process steps and packages can be represented in
+            this content object. Save a draft before publishing changes
+            to visitors.
           </p>
         </header>
 
@@ -373,12 +361,23 @@ export default function VideoProductionContentAdmin() {
               marginBottom: 18,
             }}
           >
-            <h2 style={{ marginTop: 0, fontSize: 18 }}>Page content JSON</h2>
-            <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7 }}>
-              Use valid JSON with double-quoted keys and strings. Keep a copy of
-              your text before making major edits. The editor loads your saved
-              draft, not just the currently published version.
+            <h2 style={{ marginTop: 0, fontSize: 18 }}>
+              Page content JSON
+            </h2>
+
+            <p
+              style={{
+                color: C.muted,
+                fontSize: 13,
+                lineHeight: 1.7,
+              }}
+            >
+              Use valid JSON with double-quoted keys and strings. Keep
+              a copy of your text before making major edits. The editor
+              loads your saved draft, not just the currently published
+              version.
             </p>
+
             <textarea
               aria-label="Video production page content JSON"
               value={contentText}
@@ -389,7 +388,8 @@ export default function VideoProductionContentAdmin() {
                 ...inputStyle,
                 minHeight: 480,
                 resize: "vertical",
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                fontFamily:
+                  "ui-monospace, SFMono-Regular, Menlo, monospace",
                 fontSize: 13,
                 lineHeight: 1.6,
               }}
@@ -404,9 +404,14 @@ export default function VideoProductionContentAdmin() {
               marginBottom: 40,
             }}
           >
-            <button type="submit" disabled={saving || loading} style={primaryButton}>
+            <button
+              type="submit"
+              disabled={saving || loading}
+              style={primaryButton}
+            >
               {saving ? "Saving…" : "Save draft"}
             </button>
+
             <button
               type="button"
               disabled={saving || loading}
@@ -415,6 +420,7 @@ export default function VideoProductionContentAdmin() {
             >
               {saving ? "Working…" : "Publish page"}
             </button>
+
             <button
               type="button"
               disabled={loading || saving}

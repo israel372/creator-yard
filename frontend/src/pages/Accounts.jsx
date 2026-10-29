@@ -17,6 +17,8 @@ const PERMISSIONS = [
   ["manage_reviews", "Manage reviews", "Manage customer reviews."],
   ["manage_video_portfolio", "Manage video portfolio", "Manage video work and portfolio entries."],
   ["manage_video_content", "Manage video-production content", "Manage video-production content."],
+  ["manage_homepage_content", "Manage homepage content", "Edit and publish the homepage."],
+  ["manage_retail_content", "Manage retail management page", "Edit and publish the retail management page."],
   ["view_reports", "View reports", "Access available business reports."],
 ];
 
@@ -781,3 +783,4 @@ export default function Accounts() {
     </div>
   );
 }
+

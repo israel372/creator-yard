@@ -1,6 +1,7 @@
-
+﻿
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import "./dashboard.css";
 
 import {
@@ -15,6 +16,7 @@ import {
   updateProduct,
   getUploadUrl,
   getCurrentUserAccount,
+  getAccountToken,
 } from "../../api/api";
 
 const EMPTY_PROFILE = {
@@ -42,12 +44,14 @@ const EMPTY_BRAND = {
 };
 
 function getAccountObject(result) {
-  return result?.user ??
+  return (
+    result?.user ??
     result?.account ??
     result?.data?.user ??
     result?.data ??
     result ??
-    null;
+    null
+  );
 }
 
 function getAccountName(user) {
@@ -102,6 +106,10 @@ function getErrorMessage(error, fallback) {
 
 function Dashboard() {
   const { profileToken } = useParams();
+  const navigate = useNavigate();
+
+  // A profile-token route is public. The central admin dashboard requires login.
+  const isAdminDashboard = !profileToken;
   const token = profileToken || PROFILE_TOKEN;
 
   const [profile, setProfile] = useState(EMPTY_PROFILE);
@@ -121,21 +129,38 @@ function Dashboard() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
+  // Protect /admin/dashboard using the existing central account login.
+  // Public /profile/:profileToken pages are not redirected.
   useEffect(() => {
     let active = true;
 
     async function loadCurrentUser() {
+      if (isAdminDashboard && !getAccountToken()) {
+        navigate("/account", { replace: true });
+        setAccountLoading(false);
+        return;
+      }
+
       try {
         const result = await getCurrentUserAccount();
+        const user = getAccountObject(result);
 
-        if (active) {
-          setCurrentUser(getAccountObject(result));
+        if (!user) {
+          throw new Error("Your account session is not valid. Please sign in again.");
         }
+
+        if (!active) return;
+
+        setCurrentUser(user);
       } catch (err) {
         console.error("Could not load signed-in account:", err);
 
-        if (active) {
-          setCurrentUser(null);
+        if (!active) return;
+
+        setCurrentUser(null);
+
+        if (isAdminDashboard) {
+          navigate("/account", { replace: true });
         }
       } finally {
         if (active) {
@@ -149,7 +174,7 @@ function Dashboard() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [isAdminDashboard, navigate]);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -171,7 +196,8 @@ function Dashboard() {
         setProfile((previous) => ({
           ...previous,
           ...data,
-          store_name: data.store_name || previous.store_name || "Creator-Yard",
+          store_name:
+            data.store_name || previous.store_name || "Creator-Yard",
         }));
       }
     } else {
@@ -206,6 +232,10 @@ function Dashboard() {
 
     async function runLoad() {
       if (!active) return;
+
+      // Avoid unnecessary admin data requests while redirecting an anonymous user.
+      if (isAdminDashboard && !getAccountToken()) return;
+
       await loadDashboard();
     }
 
@@ -214,7 +244,7 @@ function Dashboard() {
     return () => {
       active = false;
     };
-  }, [loadDashboard]);
+  }, [isAdminDashboard, loadDashboard]);
 
   function handleProfileChange(event) {
     const { name, value } = event.target;
@@ -290,7 +320,10 @@ function Dashboard() {
       setProfile((previous) => ({
         ...previous,
         logo: result.url,
-        logo_type: previous.logo_type === "text" ? "both" : previous.logo_type || "both",
+        logo_type:
+          previous.logo_type === "text"
+            ? "both"
+            : previous.logo_type || "both",
       }));
 
       setNotice("Logo uploaded. Save your agency profile to retain the changes.");
@@ -385,16 +418,19 @@ function Dashboard() {
       is_portfolio: true,
     };
 
+    const wasEditing = editingBrandId !== null;
+
     try {
-      if (editingBrandId !== null) {
+      if (wasEditing) {
         await updateProduct(editingBrandId, payload);
       } else {
         await createProduct(payload);
       }
 
       resetBrandForm();
+
       setNotice(
-        editingBrandId !== null
+        wasEditing
           ? "Client brand updated successfully."
           : "Client brand added successfully."
       );
@@ -448,6 +484,47 @@ function Dashboard() {
 
   const accountName = getAccountName(currentUser);
   const accountRole = getAccountRole(currentUser);
+  const isAccountOwner =
+    String(currentUser?.role || "").toLowerCase() === "owner";
+
+  const editorLinks = [
+    {
+      title: "Homepage editor",
+      description: "Update and publish the public homepage.",
+      href: "/admin/homepage-content",
+      permission: "manage_homepage_content",
+    },
+    {
+      title: "Retail management editor",
+      description: "Update and publish the retail management page.",
+      href: "/admin/retail-management-content",
+      permission: "manage_retail_content",
+    },
+    {
+      title: "Video portfolio",
+      description: "Manage video work and portfolio entries.",
+      href: "/admin/video-portfolio",
+      permission: "manage_video_portfolio",
+    },
+    {
+      title: "Video production editor",
+      description: "Edit and publish video-production content.",
+      href: "/admin/video-production-content",
+      permission: "manage_video_content",
+    },
+    {
+      title: "Team accounts",
+      description: "Approve team registrations and assign access.",
+      href: "/admin/accounts",
+      ownerOnly: true,
+    },
+  ].filter((item) => {
+    if (!currentUser) return false;
+    if (isAccountOwner) return true;
+    if (item.ownerOnly) return false;
+
+    return currentUser.permissions?.[item.permission] === true;
+  });
 
   if (loading) {
     return (
@@ -494,11 +571,49 @@ function Dashboard() {
                 ? "Checking access"
                 : currentUser
                   ? accountRole
-                  : "Sign-in required"}
+                  : "Public profile"}
             </span>
           </div>
         </div>
       </header>
+
+      {!profileToken && currentUser && (
+        <section className="cy-editor-hub" aria-labelledby="cy-editor-hub-title">
+          <div className="cy-editor-hub-heading">
+            <div>
+              <span className="cy-editor-hub-eyebrow">YOUR WORKSPACE</span>
+              <h2 id="cy-editor-hub-title">Content and management</h2>
+              <p>Open the tools available to your account.</p>
+            </div>
+
+            <span className="cy-editor-hub-role">{accountRole}</span>
+          </div>
+
+          {editorLinks.length > 0 ? (
+            <div className="cy-editor-hub-grid">
+              {editorLinks.map((item) => (
+                <a
+                  className="cy-editor-hub-card"
+                  href={item.href}
+                  key={item.href}
+                >
+                  <span className="cy-editor-hub-card-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                  <strong>{item.title}</strong>
+                  <span>{item.description}</span>
+                  <span className="cy-editor-hub-open">Open workspace</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="cy-editor-hub-empty">
+              No editor permissions have been assigned to your account yet.
+              Contact the Creator Yard owner for access.
+            </p>
+          )}
+        </section>
+      )}
 
       {notice && (
         <div className="dashboard-notice" role="status">
@@ -566,11 +681,6 @@ function Dashboard() {
               <img
                 src={getUploadUrl(profile.logo)}
                 alt="Creator Yard agency logo"
-                style={{
-                  maxWidth: "180px",
-                  maxHeight: "140px",
-                  objectFit: "contain",
-                }}
               />
             </div>
           )}
@@ -757,11 +867,6 @@ function Dashboard() {
               <img
                 src={getUploadUrl(brandForm.image)}
                 alt="Client brand logo preview"
-                style={{
-                  maxWidth: "180px",
-                  maxHeight: "120px",
-                  objectFit: "contain",
-                }}
               />
             </div>
           )}
@@ -779,7 +884,7 @@ function Dashboard() {
             </button>
 
             {editingBrandId !== null && (
-              <button type="button" onClick={resetBrandForm}>
+              <button type="button" className="button-secondary" onClick={resetBrandForm}>
                 Cancel edit
               </button>
             )}
@@ -797,13 +902,9 @@ function Dashboard() {
                 <article className="record-card" key={brand.id}>
                   {brand.image && (
                     <img
+                      className="record-logo"
                       src={getUploadUrl(brand.image)}
                       alt={`${brand.name} logo`}
-                      style={{
-                        width: "90px",
-                        height: "70px",
-                        objectFit: "contain",
-                      }}
                     />
                   )}
 
@@ -835,6 +936,7 @@ function Dashboard() {
 
                     <button
                       type="button"
+                      className="button-danger"
                       onClick={() => handleDeleteBrand(brand)}
                     >
                       Remove

@@ -12,6 +12,10 @@ import OwnerSetup from "./pages/OwnerSetup";
 
 
 import Accounts from "./pages/Accounts";
+import HomepageContentAdmin from "./pages/homepageContentAdmin";
+import RetailManagement from "./pages/retailManagement";
+import RetailManagementContentAdmin from "./pages/retailManagementContentAdmin";
+import Training from "./pages/training";
 function App() {
   return (
     <BrowserRouter>
@@ -30,6 +34,10 @@ function App() {
 
 
         <Route path="/admin/accounts" element={<Accounts />} />
+        <Route path="/training" element={<Training />} />
+        <Route path="/retail-management" element={<RetailManagement />} />
+        <Route path="/admin/homepage-content" element={<HomepageContentAdmin />} />
+        <Route path="/admin/retail-management-content" element={<RetailManagementContentAdmin />} />
         <Route
           path="*"
           element={
@@ -46,3 +54,4 @@ function App() {
 }
 
 export default App;
+

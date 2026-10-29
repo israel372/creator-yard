@@ -1,4 +1,4 @@
-const API_BASE =
+﻿const API_BASE =
 import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 export const PROFILE_TOKEN = "ZFE_e9utZYmdUP1-bPg3HyIfOPw9eYfXsidVO44U_jI";
@@ -437,6 +437,113 @@ export async function publishVideoProductionContent(token) {
   return data;
 }
 
+
+// Homepage CMS
+export async function getPublishedHomepageContent() {
+  const response = await fetch(`${API_BASE}/homepage/content`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage content.");
+  }
+  return data;
+}
+
+export async function getAdminHomepageContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    headers: { Authorization: `Bearer ${activeToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage draft.");
+  }
+  return data;
+}
+
+export async function saveHomepageDraft(content, token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${activeToken}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save homepage draft.");
+  }
+  return data;
+}
+
+export async function publishHomepageContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content/publish`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${activeToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish homepage content.");
+  }
+  return data;
+}
+
+// Retail management page CMS
+export async function getPublishedRetailManagementContent() {
+  const response = await fetch(`${API_BASE}/retail-management/content`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load retail management content.");
+  }
+  return data;
+}
+
+export async function getAdminRetailManagementContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
+    headers: { Authorization: `Bearer ${activeToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load retail management draft.");
+  }
+  return data;
+}
+
+export async function saveRetailManagementDraft(content, token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${activeToken}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save retail management draft.");
+  }
+  return data;
+}
+
+export async function publishRetailManagementContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(
+    `${API_BASE}/retail-management/admin/content/publish`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${activeToken}` },
+    }
+  );
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish retail management content.");
+  }
+  return data;
+}
 // Creator Yard staff and owner accounts.
 // This token is intentionally separate from the video-production admin token.
 const ACCOUNT_TOKEN_KEY = "cy_account_token";
@@ -536,3 +643,4 @@ export async function updateManagedAccount(userId, access) {
     body: JSON.stringify(access),
   });
 }
+
