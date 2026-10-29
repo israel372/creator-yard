@@ -1,0 +1,431 @@
+.cy-training {
+  --training-ink: #171717;
+  --training-muted: #696969;
+  --training-accent: #c7f36b;
+  color: var(--training-ink);
+  background: #fafaf7;
+}
+
+.cy-training * {
+  box-sizing: border-box;
+}
+
+.cy-training-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 100px 7% 76px;
+  background:
+    radial-gradient(ellipse at 85% 20%, rgba(199, 243, 107, 0.2), transparent 34%),
+    #171717;
+  color: #fff;
+}
+
+.cy-training-hero-inner {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.cy-training-eyebrow,
+.cy-training-kicker {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  line-height: 1.6;
+}
+
+.cy-training-eyebrow {
+  color: var(--training-accent);
+}
+
+.cy-training-hero h1 {
+  max-width: 850px;
+  margin: 26px 0 20px;
+  font-size: clamp(42px, 7vw, 82px);
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 1.02;
+}
+
+.cy-training-hero h1 span,
+.cy-training-intro h2 span,
+.cy-training-cta h2 span {
+  color: var(--training-accent);
+}
+
+.cy-training-hero-inner > p {
+  max-width: 650px;
+  color: #d1d1d1;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.cy-training-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.cy-training-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 50px;
+  padding: 14px 20px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.cy-training-button:hover,
+.cy-training-enrol:hover {
+  transform: translateY(-2px);
+}
+
+.cy-training-primary {
+  background: var(--training-accent);
+  color: #171717;
+}
+
+.cy-training-secondary {
+  border-color: #606060;
+  color: #fff;
+}
+
+.cy-training-note {
+  margin-top: 35px;
+  color: #b7b7b7;
+  font-size: 12px;
+  letter-spacing: 0.035em;
+}
+
+.cy-training-intro,
+.cy-training-programmes,
+.cy-training-process {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 82px 7%;
+}
+
+.cy-training-kicker {
+  color: #626d42;
+}
+
+.cy-training-intro h2,
+.cy-training-section-heading h2,
+.cy-training-process h2 {
+  margin: 18px 0;
+  font-size: clamp(30px, 4.5vw, 51px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+}
+
+.cy-training-intro h2 span {
+  color: #687c3d;
+}
+
+.cy-training-intro > p {
+  max-width: 760px;
+  color: var(--training-muted);
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.cy-training-programmes {
+  max-width: none;
+  background: #f0f0e9;
+}
+
+.cy-training-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  max-width: 1080px;
+  margin: 0 auto 34px;
+}
+
+.cy-training-section-heading h2 {
+  margin-bottom: 0;
+}
+
+.cy-training-section-heading > p {
+  max-width: 330px;
+  color: var(--training-muted);
+  line-height: 1.7;
+}
+
+.cy-training-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 1080px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.cy-training-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 27px 23px 24px;
+  border: 1px solid #deded4;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.cy-training-card-featured {
+  border-color: #171717;
+  background: #20211d;
+  color: #fff;
+}
+
+.cy-training-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #777;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.cy-training-card-featured .cy-training-card-top {
+  color: #d0d0c7;
+}
+
+.cy-training-badge {
+  padding: 6px 8px;
+  border-radius: 2px;
+  background: var(--training-accent);
+  color: #171717;
+  font-size: 9px;
+}
+
+.cy-training-card h3 {
+  margin: 25px 0 16px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+}
+
+.cy-training-price {
+  font-size: clamp(27px, 3vw, 35px);
+  font-weight: 850;
+  letter-spacing: -0.05em;
+}
+
+.cy-training-price span {
+  display: block;
+  margin-top: 5px;
+  color: #737373;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.cy-training-card-featured .cy-training-price span {
+  color: #c6c6be;
+}
+
+.cy-training-description {
+  min-height: 104px;
+  margin: 23px 0;
+  color: #686868;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.cy-training-card-featured .cy-training-description {
+  color: #d0d0c8;
+}
+
+.cy-training-includes {
+  padding-top: 20px;
+  border-top: 1px solid #e8e8e2;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.cy-training-card-featured .cy-training-includes {
+  border-color: #464740;
+}
+
+.cy-training-card ul {
+  display: grid;
+  gap: 15px;
+  margin: 20px 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.cy-training-card li {
+  display: flex;
+  gap: 9px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.cy-training-card li span {
+  flex: 0 0 auto;
+  color: #748b42;
+  font-weight: 900;
+}
+
+.cy-training-card-featured li {
+  color: #e0e0da;
+}
+
+.cy-training-enrol {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding: 15px 14px;
+  border: 1px solid #202020;
+  border-radius: 3px;
+  color: #202020;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 160ms ease;
+}
+
+.cy-training-enrol-featured {
+  border-color: var(--training-accent);
+  background: var(--training-accent);
+}
+
+.cy-training-pricing-note {
+  max-width: 1080px;
+  margin: 22px auto 0;
+  color: #6b6b63;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.cy-training-process h2 {
+  max-width: 650px;
+}
+
+.cy-training-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 38px;
+}
+
+.cy-training-steps article {
+  padding-top: 20px;
+  border-top: 1px solid #d9d9d1;
+}
+
+.cy-training-steps article > span {
+  color: #748b42;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.cy-training-steps h3 {
+  margin: 18px 0 9px;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.cy-training-steps p {
+  color: var(--training-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.cy-training-cta {
+  padding: 76px 7%;
+  background: #20211d;
+  color: #fff;
+  text-align: center;
+}
+
+.cy-training-cta h2 {
+  margin: 20px 0;
+  font-size: clamp(34px, 5.5vw, 58px);
+  font-weight: 850;
+  letter-spacing: -0.06em;
+  line-height: 1.08;
+}
+
+.cy-training-cta > p {
+  max-width: 570px;
+  margin: 0 auto 25px;
+  color: #d0d0c8;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+@media (max-width: 900px) {
+  .cy-training-grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+
+  .cy-training-description {
+    min-height: 0;
+  }
+
+  .cy-training-section-heading {
+    display: block;
+  }
+
+  .cy-training-section-heading > p {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cy-training-hero {
+    padding: 70px 6% 55px;
+  }
+
+  .cy-training-hero-inner > p {
+    font-size: 15px;
+  }
+
+  .cy-training-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cy-training-button {
+    width: 100%;
+  }
+
+  .cy-training-intro,
+  .cy-training-programmes,
+  .cy-training-process {
+    padding: 58px 6%;
+  }
+
+  .cy-training-steps {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .cy-training-card {
+    padding: 24px 20px;
+  }
+
+  .cy-training-cta {
+    padding: 60px 6%;
+  }
+}

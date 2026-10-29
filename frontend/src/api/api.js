@@ -118,7 +118,7 @@ export async function createProduct(product) {
 }
 
 export async function getProducts() {
-  const response = await fetch(`${API_BASE}/products`);
+  const response = await fetch(`${API_BASE}/products/`);
 
   if (!response.ok) {
     throw new Error("Failed to load products");
@@ -413,5 +413,122 @@ export async function publishVideoProductionContent(token) {
     throw new Error(data.detail || "Failed to publish page content");
   }
 
+  return data;
+}
+
+// Retail Management Page CMS
+
+export async function getPublishedRetailManagementContent() {
+  const response = await fetch(`${API_BASE}/retail-management/content`);
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load retail management content");
+  }
+
+  return data;
+}
+
+export async function getAdminRetailManagementContent(token) {
+  const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load retail management draft");
+  }
+
+  return data;
+}
+
+export async function saveRetailManagementDraft(content, token) {
+  const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save retail management draft");
+  }
+
+  return data;
+}
+
+export async function publishRetailManagementContent(token) {
+  const response = await fetch(
+    `${API_BASE}/retail-management/admin/content/publish`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish retail management content");
+  }
+
+  return data;
+}
+/* Homepage CMS */
+
+export async function getPublishedHomepageContent() {
+  const response = await fetch(`${API_BASE}/homepage/content`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage content");
+  }
+  return data;
+}
+
+export async function getAdminHomepageContent(token) {
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage draft");
+  }
+  return data;
+}
+
+export async function saveHomepageDraft(content, token) {
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save homepage draft");
+  }
+  return data;
+}
+
+export async function publishHomepageContent(token) {
+  const response = await fetch(`${API_BASE}/homepage/admin/content/publish`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish homepage content");
+  }
   return data;
 }

@@ -2,11 +2,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/home";
 import VideoProduction from "./pages/videoProduction";
+import RetailManagement from "./pages/retailManagement";
+import Training from "./pages/training";
 import Dashboard from "./pages/profile/dashboard";
 import Join from "./pages/join";
 import PaymentCallback from "./pages/paymentCallback";
 import VideoPortfolioAdmin from "./pages/videoPortfolioAdmin";
 import VideoProductionContentAdmin from "./pages/videoProductionContentAdmin";
+import RetailManagementContentAdmin from "./pages/retailManagementContentAdmin";
+import HomepageContentAdmin from "./pages/homepageContentAdmin";
 
 function App() {
   return (
@@ -14,6 +18,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/video-production" element={<VideoProduction />} />
+        <Route path="/training" element={<Training />} />
+          <Route path="/retail-management" element={<RetailManagement />} />
 
         <Route path="/profile/:profileToken" element={<Dashboard />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -21,6 +27,8 @@ function App() {
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/admin/video-portfolio" element={<VideoPortfolioAdmin />} />
         <Route path="/admin/video-production-content" element={<VideoProductionContentAdmin />} />
+        <Route path="/admin/retail-management-content" element={<RetailManagementContentAdmin />} />
+        <Route path="/admin/homepage-content" element={<HomepageContentAdmin />} />
 
         <Route
           path="*"

@@ -1236,3 +1236,135 @@
     height: 62px;
   }
 }
+
+/* Practical training call-to-action */
+.cy-training-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 34px;
+  padding: 28px;
+  border: 1px solid rgba(107, 57, 164, .16);
+  border-radius: 8px;
+  background: #f8f4fc;
+}
+
+.cy-training-cta > div {
+  max-width: 600px;
+}
+
+.cy-training-cta-kicker {
+  color: #6d3aa0;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.cy-training-cta h3 {
+  margin: 9px 0;
+  color: #21172b;
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+}
+
+.cy-training-cta p {
+  margin: 0;
+  color: #655b6d;
+  font-size: .9rem;
+  line-height: 1.7;
+}
+
+.cy-training-cta .cy-button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .cy-training-cta {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .cy-training-cta .cy-button {
+    width: 100%;
+  }
+}
+
+/* Homepage published-video portfolio */
+.cy-home-video-grid {
+  align-items: start;
+}
+
+.cy-home-video-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #f0edf3;
+  border-radius: 5px;
+}
+
+.cy-home-video-media video,
+.cy-home-video-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cy-home-video-category {
+  margin: 0 0 7px;
+  color: #702be2;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cy-portfolio-meta > div {
+  min-width: 0;
+}
+
+.cy-portfolio-meta > div > p:not(.cy-home-video-category) {
+  overflow-wrap: anywhere;
+}
+
+.cy-portfolio-meta > a {
+  flex-shrink: 0;
+  color: inherit;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.cy-home-video-empty {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  place-items: center;
+  padding: 20px;
+  color: #686270;
+  text-align: center;
+}
+
+.cy-home-video-empty-state {
+  grid-column: 1 / -1;
+  padding: 36px;
+  border: 1px solid #e7e2ed;
+  border-radius: 5px;
+  background: #faf8fc;
+}
+
+.cy-home-video-empty-state h3 {
+  margin: 12px 0;
+}
+
+.cy-home-video-empty-state p {
+  max-width: 600px;
+  color: #686270;
+  line-height: 1.7;
+}
+
+@media (max-width: 560px) {
+  .cy-home-video-empty-state {
+    padding: 24px;
+  }
+}

@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { getProfile, getProducts, getUploadUrl } from "../api/api";
+import {
+  getProfile,
+  getProducts,
+  getUploadUrl,
+  getPublishedHomepageContent,
+  getPublishedVideos,
+} from "../api/api";
+import homepageDefaults from "../homepageDefaults.js";
 import Header from "../components/Header";
 import Footer from "../components/footer";
 import "./home.css";
@@ -7,31 +14,27 @@ import "./home.css";
 const services = [
   {
     number: "01",
-    title: "Content Creation",
+    title: "Retail Management Solutions",
+    href: "/retail-management",
     description:
-      "Creative content that helps businesses attract attention, communicate their value, and connect with the right audience.",
-    tags: ["Social media", "Brand content", "Campaigns"],
+      "Manage sales, inventory, products, and daily operations with practical retail management tools built for small businesses.",
+    tags: ["Point of sale", "Inventory", "Business operations"],
   },
   {
     number: "02",
-    title: "Website Development",
+    title: "Video Production & Content Creation",
+    href: "/video-production",
     description:
-      "Modern, responsive websites designed to present your brand professionally and help your business grow online.",
-    tags: ["Business websites", "Landing pages", "Web applications"],
+      "Create promotional videos, business adverts, and social media content that help your brand communicate and attract customers.",
+    tags: ["Business videos", "Social content", "Video editing"],
   },
   {
     number: "03",
-    title: "POS & Inventory Systems",
+    title: "Digital & Creative Training",
+    href: "/training",
     description:
-      "Practical business systems to help you manage sales, inventory, products, and everyday business operations.",
-    tags: ["POS systems", "Stock management", "Business tools"],
-  },
-  {
-    number: "04",
-    title: "Video Editing & Training",
-    description:
-      "Engaging video edits and practical content creation training to help individuals and businesses improve their skills.",
-    tags: ["Video editing", "Reels & shorts", "Creative training"],
+      "Build practical skills in video editing, content creation, and digital tools through hands-on training for individuals and businesses.",
+    tags: ["Video editing", "Content creation", "Digital skills"],
   },
 ];
 
@@ -43,8 +46,69 @@ function normalizeUrl(value) {
 }
 
 function Home() {
+
+  const [homepageContent, setHomepageContent] = useState(homepageDefaults);
   const [profile, setProfile] = useState({});
   const [brands, setBrands] = useState([]);
+  const [portfolioVideos, setPortfolioVideos] = useState([]);
+
+
+
+  useEffect(() => {
+    let active = true;
+
+    getPublishedHomepageContent()
+      .then((data) => {
+        if (!active || !data?.content) return;
+        const saved = data.content;
+        setHomepageContent({
+          ...homepageDefaults,
+          ...saved,
+          hero: { ...homepageDefaults.hero, ...(saved.hero || {}) },
+          portfolio: {
+            ...homepageDefaults.portfolio,
+            ...(saved.portfolio || {}),
+          },
+          services: {
+            ...homepageDefaults.services,
+            ...(saved.services || {}),
+            items: Array.isArray(saved.services?.items)
+              ? saved.services.items
+              : homepageDefaults.services.items,
+          },
+          trainingCta: {
+            ...homepageDefaults.trainingCta,
+            ...(saved.trainingCta || {}),
+          },
+        });
+      })
+      .catch(() => {
+        // Keep the local defaults when no published homepage is available.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getPublishedVideos()
+      .then((data) => {
+        if (active) {
+          setPortfolioVideos(Array.isArray(data) ? data : []);
+        }
+      })
+      .catch((error) => {
+        console.error("Could not load homepage portfolio videos:", error);
+        if (active) setPortfolioVideos([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     async function loadHomepage() {
@@ -267,6 +331,7 @@ function Home() {
                 <a
                   className="cy-service-link"
                   href={
+                    service.href ||
                     whatsappLink ||
                     (profile.email
                       ? `mailto:${profile.email}?subject=${encodeURIComponent(
@@ -274,17 +339,30 @@ function Home() {
                         )}`
                       : "#contact")
                   }
-                  target={whatsappLink ? "_blank" : undefined}
-                  rel={whatsappLink ? "noopener noreferrer" : undefined}
+                  target={!service.href && whatsappLink ? "_blank" : undefined}
+                  rel={!service.href && whatsappLink ? "noopener noreferrer" : undefined}
                 >
                   Discuss this service <span>↗</span>
                 </a>
               </article>
             ))}
           </div>
+        <div className="cy-training-cta">
+            <div>
+              <span className="cy-training-cta-kicker">LEARN BY DOING</span>
+              <h3>Ready to build the skill yourself?</h3>
+              <p>
+                Join practical training in video production, editing, and retail
+                software setup — or combine both programmes.
+              </p>
+            </div>
+            <a className="cy-button cy-button-primary" href="/training">
+              Explore practical training <span>↗</span>
+            </a>
+          </div>
         </section>
 
-        <section className="cy-work" id="work">
+                  <section className="cy-work" id="work">
           <div className="cy-section-heading">
             <div>
               <div className="cy-section-kicker">THE WORK SPEAKS</div>
@@ -302,78 +380,65 @@ function Home() {
             </p>
           </div>
 
-          <div className="cy-portfolio-grid">
-            <article className="cy-portfolio-card cy-portfolio-feature">
-              <div className="cy-portfolio-art cy-portfolio-purple">
-                <span className="cy-portfolio-small">01 / BRAND IDENTITY</span>
-                <span className="cy-portfolio-big">
-                  MAKE
-                  <br />
-                  YOUR
-                  <br />
-                  MARK<span>.</span>
-                </span>
-                <span className="cy-portfolio-stamp">CY ✳</span>
-              </div>
-              <div className="cy-portfolio-meta">
-                <div>
-                  <h3>Branding & Creative Direction</h3>
-                  <p>Identity · Visual storytelling</p>
-                </div>
-                <span>↗</span>
-              </div>
-            </article>
-
-            <article className="cy-portfolio-card">
-              <div className="cy-portfolio-art cy-portfolio-lime">
-                <span className="cy-portfolio-small">
-                  02 / DIGITAL EXPERIENCE
-                </span>
-                <div className="cy-browser-art">
-                  <div className="cy-browser-bar">
-                    <i />
-                    <i />
-                    <i />
+          <div className="cy-portfolio-grid cy-home-video-grid">
+            {portfolioVideos.length > 0 ? (
+              portfolioVideos.slice(0, 3).map((video) => (
+                <article className="cy-portfolio-card" key={video.id}>
+                  <div className="cy-home-video-media">
+                    {video.video_url ? (
+                      <video
+                        controls
+                        playsInline
+                        preload="metadata"
+                        poster={video.thumbnail_url || undefined}
+                        aria-label={video.title || "Creator-Yard portfolio video"}
+                      >
+                        <source src={video.video_url} />
+                        Your browser does not support HTML video.
+                      </video>
+                    ) : video.thumbnail_url ? (
+                      <img
+                        src={video.thumbnail_url}
+                        alt={video.title || "Creator-Yard portfolio preview"}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="cy-home-video-empty">
+                        Video preview unavailable
+                      </div>
+                    )}
                   </div>
-                  <div className="cy-browser-content">
-                    <span>YOUR BUSINESS.</span>
-                    <strong>ONLINE.</strong>
-                    <div />
-                    <div />
+                  <div className="cy-portfolio-meta">
+                    <div>
+                      <p className="cy-home-video-category">
+                        {video.category || "Featured work"}
+                      </p>
+                      <h3>{video.title || "Creator-Yard project"}</h3>
+                      {video.description && <p>{video.description}</p>}
+                    </div>
+                    <a
+                      href="/video-production"
+                      aria-label={`View video production services for ${video.title || "this project"}`}
+                    >
+                      ↗
+                    </a>
                   </div>
-                </div>
+                </article>
+              ))
+            ) : (
+              <div className="cy-home-video-empty-state">
+                <span className="cy-note-star">✳</span>
+                <h3>Our next feature could be your project.</h3>
+                <p>
+                  Our video portfolio is being updated. Visit our video
+                  production page to explore the service or discuss a project.
+                </p>
+                <a className="cy-button cy-button-primary" href="/video-production">
+                  Explore video production <span>↗</span>
+                </a>
               </div>
-              <div className="cy-portfolio-meta">
-                <div>
-                  <h3>Websites & Digital Products</h3>
-                  <p>Web design · Development</p>
-                </div>
-                <span>↗</span>
-              </div>
-            </article>
-
-            <article className="cy-portfolio-card">
-              <div className="cy-portfolio-art cy-portfolio-orange">
-                <span className="cy-portfolio-small">03 / CONTENT STUDIO</span>
-                <div className="cy-content-symbol">
-                  <span>▶</span>
-                </div>
-                <span className="cy-content-title">
-                  STOP
-                  <br />
-                  THE SCROLL.
-                </span>
-              </div>
-              <div className="cy-portfolio-meta">
-                <div>
-                  <h3>Content & Video Production</h3>
-                  <p>Social content · Video editing</p>
-                </div>
-                <span>↗</span>
-              </div>
-            </article>
+            )}
           </div>
-
           <div className="cy-portfolio-note">
             <span className="cy-note-star">✳</span>
             <p>

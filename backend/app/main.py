@@ -6,7 +6,11 @@ from sqlalchemy import text
 
 from app.database import Base, engine
 from app.models.video_production_content import VideoProductionContent
+from app.models.retail_management_content import RetailManagementContent
+from app.models.homepage_content import HomepageContent
 from app.routes import video_production_content
+from app.routes import retail_management_content
+from app.routes import homepage_content
 from app.routes import (
     profile, product, review, referral, video_portfolio,
     video_portfolio_admin, video_portfolio_auth, video_portfolio_upload,
@@ -32,9 +36,15 @@ app.mount(
     name="uploads"
 )
 
+
+
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
     "https://powerchoice.pages.dev",
 ]
 
@@ -96,6 +106,8 @@ app.include_router(video_portfolio_admin.router)
 app.include_router(video_portfolio_auth.router)
 app.include_router(video_portfolio_upload.router)
 app.include_router(video_production_content.router)
+app.include_router(retail_management_content.router)
+app.include_router(homepage_content.router)
 
 
 
