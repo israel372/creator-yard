@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { getAccountToken } from "../api/api";
 import {
-  loginVideoPortfolioAdmin,
   getAdminRetailManagementContent,
   saveRetailManagementDraft,
   publishRetailManagementContent,
 } from "../api/api";
 
-const TOKEN_KEY = "cy_video_admin_token";
 
 const C = {
   bg: "#101211",
@@ -201,10 +200,7 @@ function SectionHeading({ title, description, visible, onToggle }) {
 }
 
 export default function RetailManagementContentAdmin() {
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem(TOKEN_KEY) || ""
-  );
-  const [password, setPassword] = useState("");
+  const [token] = useState(() => getAccountToken());
   const [content, setContent] = useState(() => clone(defaults));
   const [jsonText, setJsonText] = useState(JSON.stringify(defaults, null, 2));
   const [advanced, setAdvanced] = useState(false);
@@ -231,9 +227,8 @@ export default function RetailManagementContentAdmin() {
     } catch (err) {
       setError(err.message || "Could not load retail page content.");
 
-      if (/401|expired|authentication|admin token/i.test(err.message || "")) {
-        sessionStorage.removeItem(TOKEN_KEY);
-        setToken("");
+      if (/401|expired|authentication|account token/i.test(err.message || "")) {
+        window.location.replace("/account");
       }
     } finally {
       setLoading(false);
@@ -241,35 +236,13 @@ export default function RetailManagementContentAdmin() {
   }
 
   useEffect(() => {
-    if (token) loadContent(token);
-  }, [token]);
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const data = await loginVideoPortfolioAdmin(password);
-      sessionStorage.setItem(TOKEN_KEY, data.access_token);
-      setToken(data.access_token);
-      setPassword("");
-      setNotice("Welcome to the Retail Management Page Editor.");
-    } catch (err) {
-      setError(err.message || "Login failed.");
-    } finally {
-      setLoading(false);
+    if (token) {
+      loadContent(token);
+    } else {
+      window.location.replace("/account");
     }
-  }
-
-  function logout() {
-    sessionStorage.removeItem(TOKEN_KEY);
-    setToken("");
-    setContent(clone(defaults));
-    setJsonText(JSON.stringify(defaults, null, 2));
-    setNotice("");
-    setError("");
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   function update(path, value) {
     setContent((current) => {
@@ -342,59 +315,9 @@ export default function RetailManagementContentAdmin() {
     }
   }
 
-  if (!token) {
-    return (
-      <main style={{
-        minHeight: "100vh",
-        background: C.bg,
-        color: C.text,
-        display: "grid",
-        placeItems: "center",
-        padding: 20,
-        fontFamily: "Inter, system-ui, sans-serif",
-      }}>
-        <form onSubmit={handleLogin} style={{
-          width: "100%",
-          maxWidth: 420,
-          boxSizing: "border-box",
-          background: C.panel,
-          border: `1px solid ${C.border}`,
-          borderRadius: 18,
-          padding: 30,
-        }}>
-          <div style={{ color: C.lime, fontWeight: 900, letterSpacing: 2 }}>
-            CREATOR-YARD
-          </div>
-          <p style={{ color: C.muted, fontSize: 12, letterSpacing: 2 }}>
-            RETAIL MANAGEMENT CMS
-          </p>
-          <h1 style={{ fontSize: 28, marginBottom: 8 }}>Manage your page.</h1>
-          <p style={{ color: C.muted, marginBottom: 25 }}>
-            Sign in with your existing admin password.
-          </p>
-          <label htmlFor="retail-admin-password" style={labelStyle}>
-            Admin password
-          </label>
-          <input
-            id="retail-admin-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            maxLength={200}
-            style={{ ...inputStyle, marginBottom: 16 }}
-          />
-          {error && <p role="alert" style={{ color: C.red, fontSize: 13 }}>{error}</p>}
-          <button type="submit" disabled={loading} style={{ ...primaryButton, width: "100%", padding: 13 }}>
-            {loading ? "Signing in…" : "Sign in →"}
-          </button>
-        </form>
-      </main>
-    );
-  }
+  if (!token) return null;
 
-  const currentSection = content[activeSection] || {};
+    const currentSection = content[activeSection] || {};
 
   const simpleFields = {
     hero: [
@@ -490,12 +413,12 @@ export default function RetailManagementContentAdmin() {
         <a href="/retail-management" target="_blank" rel="noreferrer" style={{ color: C.text, fontSize: 13, marginTop: 8 }}>
           Preview public page ↗
         </a>
+        <a href="/admin/dashboard" style={{ ...buttonStyle, width: "100%", marginTop: 12, textAlign: "center", textDecoration: "none" }}>
+          Back to dashboard
+        </a>
 
         <div style={{ marginTop: "auto", color: C.muted, fontSize: 12 }}>
           {published ? "A published version exists" : "Not yet published"}
-          <button style={{ ...buttonStyle, width: "100%", marginTop: 12 }} onClick={logout}>
-            Sign out
-          </button>
         </div>
       </aside>
 

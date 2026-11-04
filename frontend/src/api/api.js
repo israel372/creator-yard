@@ -1,4 +1,4 @@
-const API_BASE =
+﻿const API_BASE =
 import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 export const PROFILE_TOKEN = "ZFE_e9utZYmdUP1-bPg3HyIfOPw9eYfXsidVO44U_jI";
@@ -32,6 +32,7 @@ export async function saveProfile(profileData) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(profileData),
   });
@@ -52,6 +53,7 @@ export async function uploadLogo(file) {
 
   const response = await fetch(`${API_BASE}/profile/logo`, {
     method: "POST",
+    headers: accountAuthHeaders(),
     body: formData,
   });
 
@@ -71,6 +73,7 @@ export async function uploadHero(file) {
     `${API_BASE}/profile/hero`,
     {
       method: "POST",
+      headers: accountAuthHeaders(),
       body: formData,
     }
   );
@@ -90,6 +93,7 @@ export async function uploadProductImage(file) {
 
   const response = await fetch(`${API_BASE}/products/upload`, {
     method: "POST",
+    headers: accountAuthHeaders(),
     body: formData,
   });
 
@@ -106,6 +110,7 @@ export async function createProduct(product) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(product),
   });
@@ -130,6 +135,7 @@ export async function getProducts() {
 export async function deleteProduct(id) {
   const response = await fetch(`${API_BASE}/products/${id}`, {
     method: "DELETE",
+    headers: accountAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -145,6 +151,7 @@ export async function updateProduct(id, product) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(product),
   });
@@ -158,6 +165,87 @@ export async function updateProduct(id, product) {
 
 
 
+
+// Client Brands — separate from Creator-Yard Products.
+
+export async function getPublishedClientBrands() {
+  const response = await fetch(`${API_BASE}/client-brands/`);
+  if (!response.ok) {
+    throw new Error("Failed to load published client brands");
+  }
+  return response.json();
+}
+
+export async function getClientBrandsForManagement() {
+  const response = await fetch(`${API_BASE}/client-brands/manage`, {
+    headers: accountAuthHeaders(),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to load client brands");
+  }
+  return response.json();
+}
+
+export async function createClientBrand(brand) {
+  const response = await fetch(`${API_BASE}/client-brands/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...accountAuthHeaders(),
+    },
+    body: JSON.stringify(brand),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to create client brand");
+  }
+  return response.json();
+}
+
+export async function updateClientBrand(id, brand) {
+  const response = await fetch(`${API_BASE}/client-brands/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...accountAuthHeaders(),
+    },
+    body: JSON.stringify(brand),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to update client brand");
+  }
+  return response.json();
+}
+
+export async function deleteClientBrand(id) {
+  const response = await fetch(`${API_BASE}/client-brands/${id}`, {
+    method: "DELETE",
+    headers: accountAuthHeaders(),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to delete client brand");
+  }
+  return response.json();
+}
+
+export async function uploadClientBrandLogo(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_BASE}/client-brands/upload`, {
+    method: "POST",
+    headers: accountAuthHeaders(),
+    body: formData,
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to upload client brand logo");
+  }
+  return response.json();
+}
 
 export async function getReviews() {
   const response = await fetch(`${API_BASE}/reviews`);
@@ -181,17 +269,31 @@ export async function updateReview(id, review) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...accountAuthHeaders(),
     },
     body: JSON.stringify(review),
   });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to update review");
+  }
 
   return response.json();
 }
 
 export async function deleteReview(id) {
-  await fetch(`${API_BASE}/reviews/${id}`, {
+  const response = await fetch(`${API_BASE}/reviews/${id}`, {
     method: "DELETE",
+    headers: accountAuthHeaders(),
   });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to delete review");
+  }
+
+  return response.json();
 }
 
 
@@ -222,28 +324,7 @@ export async function getPublishedVideos() {
   return response.json();
 }
 
-// Video Portfolio Admin
 
-export async function loginVideoPortfolioAdmin(password) {
-  const response = await fetch(
-    `${API_BASE}/video-portfolio/admin/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password }),
-    }
-  );
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Admin login failed");
-  }
-
-  return data;
-}
 
 export async function getAdminVideos(token) {
   const response = await fetch(
@@ -416,6 +497,67 @@ export async function publishVideoProductionContent(token) {
   return data;
 }
 
+// Homepage CMS
+
+export async function getPublishedHomepageContent() {
+  const response = await fetch(`${API_BASE}/homepage/content`);
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage content");
+  }
+
+  return data;
+}
+
+export async function getAdminHomepageContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    headers: { Authorization: `Bearer ${activeToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load homepage draft");
+  }
+
+  return data;
+}
+
+export async function saveHomepageDraft(content, token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${activeToken}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to save homepage draft");
+  }
+
+  return data;
+}
+
+export async function publishHomepageContent(token) {
+  const activeToken = token || getAccountToken();
+  const response = await fetch(`${API_BASE}/homepage/admin/content/publish`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${activeToken}` },
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to publish homepage content");
+  }
+
+  return data;
+}
+
 // Retail Management Page CMS
 
 export async function getPublishedRetailManagementContent() {
@@ -430,12 +572,10 @@ export async function getPublishedRetailManagementContent() {
 }
 
 export async function getAdminRetailManagementContent(token) {
+  const activeToken = token || getAccountToken();
   const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${activeToken}` },
   });
-
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -446,15 +586,15 @@ export async function getAdminRetailManagementContent(token) {
 }
 
 export async function saveRetailManagementDraft(content, token) {
+  const activeToken = token || getAccountToken();
   const response = await fetch(`${API_BASE}/retail-management/admin/content`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${activeToken}`,
     },
     body: JSON.stringify({ content }),
   });
-
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -465,16 +605,14 @@ export async function saveRetailManagementDraft(content, token) {
 }
 
 export async function publishRetailManagementContent(token) {
+  const activeToken = token || getAccountToken();
   const response = await fetch(
     `${API_BASE}/retail-management/admin/content/publish`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${activeToken}` },
     }
   );
-
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -483,52 +621,105 @@ export async function publishRetailManagementContent(token) {
 
   return data;
 }
-/* Homepage CMS */
 
-export async function getPublishedHomepageContent() {
-  const response = await fetch(`${API_BASE}/homepage/content`);
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to load homepage content");
-  }
-  return data;
+// Creator Yard staff and owner accounts.
+// This token is intentionally separate from the video-production admin token.
+const ACCOUNT_TOKEN_KEY = "cy_account_token";
+
+export function getAccountToken() {
+  return sessionStorage.getItem(ACCOUNT_TOKEN_KEY) || "";
 }
 
-export async function getAdminHomepageContent(token) {
-  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
-    headers: { Authorization: `Bearer ${token}` },
+function accountAuthHeaders() {
+  const token = getAccountToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function saveAccountToken(token) {
+  if (!token) {
+    throw new Error("A valid account token is required.");
+  }
+
+  sessionStorage.setItem(ACCOUNT_TOKEN_KEY, token);
+}
+
+export function logoutUserAccount() {
+  sessionStorage.removeItem(ACCOUNT_TOKEN_KEY);
+}
+
+async function accountRequest(path, options = {}) {
+  const token = getAccountToken();
+  const headers = {
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
   });
   const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    throw new Error(data.detail || "Failed to load homepage draft");
+    const error = new Error(data.detail || "Account request failed.");
+    error.status = response.status;
+    throw error;
   }
+
   return data;
 }
 
-export async function saveHomepageDraft(content, token) {
-  const response = await fetch(`${API_BASE}/homepage/admin/content`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ content }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to save homepage draft");
-  }
-  return data;
-}
-
-export async function publishHomepageContent(token) {
-  const response = await fetch(`${API_BASE}/homepage/admin/content/publish`, {
+export async function registerUserAccount(account) {
+  return accountRequest("/accounts/register", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(account),
   });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to publish homepage content");
+}
+
+export async function setupOwnerAccount(account) {
+  const data = await accountRequest("/accounts/setup-owner", {
+    method: "POST",
+    body: JSON.stringify(account),
+  });
+
+  if (!data.access_token || !data.user) {
+    throw new Error("The server returned an incomplete owner setup response.");
   }
+
+  saveAccountToken(data.access_token);
   return data;
+}
+
+export async function loginUserAccount(email, password) {
+  const data = await accountRequest("/accounts/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!data.access_token || !data.user) {
+    throw new Error("The server returned an incomplete login response.");
+  }
+
+  saveAccountToken(data.access_token);
+  return data;
+}
+
+export async function getCurrentUserAccount() {
+  return accountRequest("/accounts/me");
+}
+
+export async function getManagedAccounts() {
+  return accountRequest("/accounts/users");
+}
+
+export async function getPendingAccounts() {
+  return accountRequest("/accounts/pending");
+}
+
+export async function updateManagedAccount(userId, access) {
+  return accountRequest(`/accounts/${userId}/access`, {
+    method: "PATCH",
+    body: JSON.stringify(access),
+  });
 }

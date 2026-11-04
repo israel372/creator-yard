@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import videoProductionDefaults from "../videoProductionDefaults.js";
 import {
-  loginVideoPortfolioAdmin,
+  getAccountToken,
+  logoutUserAccount,
   getAdminVideoProductionContent,
   saveVideoProductionDraft,
   publishVideoProductionContent,
@@ -146,8 +148,8 @@ function ImagePreview({ url }) {
 }
 
 export default function VideoProductionContentAdmin() {
-  const [token, setToken] = useState(() => sessionStorage.getItem("cy_video_admin_token") || "");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [token, setToken] = useState(() => getAccountToken() || "");
   const [content, setContent] = useState(() => clone(videoProductionDefaults));
   const [jsonText, setJsonText] = useState("");
   const [advanced, setAdvanced] = useState(false);
@@ -172,8 +174,9 @@ export default function VideoProductionContentAdmin() {
     } catch (err) {
       setError(err.message || "Could not load page content.");
       if (/401|expired|authentication|admin token/i.test(err.message || "")) {
-        sessionStorage.removeItem("cy_video_admin_token");
+        logoutUserAccount();
         setToken("");
+        navigate("/account");
       }
     } finally {
       setLoading(false);
@@ -181,34 +184,12 @@ export default function VideoProductionContentAdmin() {
   }
 
   useEffect(() => {
-    if (token) loadContent(token);
-  }, [token]);
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const data = await loginVideoPortfolioAdmin(password);
-      sessionStorage.setItem("cy_video_admin_token", data.access_token);
-      setToken(data.access_token);
-      setPassword("");
-      setNotice("Welcome to the Video Production Page Editor.");
-    } catch (err) {
-      setError(err.message || "Login failed.");
-    } finally {
-      setLoading(false);
+    if (!token) {
+      navigate("/account");
+      return;
     }
-  }
-
-  function logout() {
-    sessionStorage.removeItem("cy_video_admin_token");
-    setToken("");
-    setContent(clone(videoProductionDefaults));
-    setJsonText("");
-    setNotice("");
-    setError("");
-  }
+    loadContent(token);
+  }, [token]);
 
   function update(path, value) {
     setContent((current) => {
@@ -288,22 +269,7 @@ export default function VideoProductionContentAdmin() {
     update(path, list.filter((_, i) => i !== index));
   }
 
-  if (!token) {
-    return (
-      <main style={{ minHeight: "100vh", background: C.bg, color: C.text, display: "grid", placeItems: "center", padding: 20, fontFamily: "Inter, system-ui, sans-serif" }}>
-        <form onSubmit={handleLogin} style={{ width: "100%", maxWidth: 420, boxSizing: "border-box", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 18, padding: 30 }}>
-          <div style={{ color: C.lime, fontWeight: 900, letterSpacing: 2 }}>CREATOR-YARD</div>
-          <p style={{ color: C.muted, fontSize: 12, letterSpacing: 2 }}>VIDEO PRODUCTION PAGE CMS</p>
-          <h1 style={{ fontSize: 28, marginBottom: 8 }}>Manage your page.</h1>
-          <p style={{ color: C.muted, marginBottom: 25 }}>Sign in with your existing admin password.</p>
-          <label htmlFor="cms-admin-password" style={labelStyle}>Admin password</label>
-          <input id="cms-admin-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required maxLength={200} style={{ ...inputStyle, marginBottom: 16 }} />
-          {error && <p role="alert" style={{ color: C.red, fontSize: 13 }}>{error}</p>}
-          <button type="submit" disabled={loading} style={{ ...primaryButton, width: "100%", padding: 13 }}>{loading ? "Signing in…" : "Sign in →"}</button>
-        </form>
-      </main>
-    );
-  }
+  if (!token) return null;
 
   const sections = [
     ["hero", "Hero"],
@@ -368,7 +334,7 @@ export default function VideoProductionContentAdmin() {
         <a href="/video-production" target="_blank" rel="noreferrer" style={{ color: C.text, fontSize: 13, marginTop: 8 }}>Preview public page ↗</a>
         <a href="/admin/video-portfolio" style={{ color: C.text, fontSize: 13 }}>Manage portfolio videos →</a>
         <div style={{ marginTop: "auto", color: C.muted, fontSize: 12 }}>{published ? "A published version exists" : "Not yet published"}
-          <button style={{ ...buttonStyle, width: "100%", marginTop: 12 }} onClick={logout}>Sign out</button>
+          <a href="/admin/dashboard" style={{ ...buttonStyle, display: "block", width: "100%", boxSizing: "border-box", marginTop: 12, textAlign: "center", textDecoration: "none" }}>Back to dashboard</a>
         </div>
       </aside>
 
@@ -444,19 +410,6 @@ export default function VideoProductionContentAdmin() {
                   </div>
                 ))}
                 <button type="button" style={buttonStyle} onClick={() => addListItem("packages.items", { number: String((currentSection.items || []).length + 1).padStart(2, "0"), tier: "", title: "", description: "", buttonLabel: "Request a quote", featured: false })}>+ Add package</button>
-              </div>
-            )}
-
-            {activeSection === "contact" && (
-              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20, marginTop: 16 }}>
-                <h3>Business contact details</h3>
-                <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>These details are saved alongside the page content. The public page currently reads its WhatsApp number and email from the creator profile, so these fields are a preview/configuration step and will not override profile contacts until the public-page integration is updated.</p>
-                <Field label="WhatsApp phone number (international format)" value={content.contact.whatsappNumber || ""} onChange={(value) => update("contact.whatsappNumber", value)} hint="Example: 2348012345678 — do not include the + sign." />
-                <Field label="Business email address" value={content.contact.emailAddress || ""} onChange={(value) => update("contact.emailAddress", value)} type="email" />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
-                  <a href={content.contact.whatsappNumber ? `https://wa.me/${content.contact.whatsappNumber.replace(/\D/g, "")}` : undefined} target="_blank" rel="noreferrer" style={{ ...buttonStyle, color: C.lime, textDecoration: "none", opacity: content.contact.whatsappNumber ? 1 : 0.5, pointerEvents: content.contact.whatsappNumber ? "auto" : "none" }}>Test WhatsApp link ↗</a>
-                  <a href={content.contact.emailAddress ? `mailto:${content.contact.emailAddress}` : undefined} style={{ ...buttonStyle, color: C.lime, textDecoration: "none", opacity: content.contact.emailAddress ? 1 : 0.5, pointerEvents: content.contact.emailAddress ? "auto" : "none" }}>Test email link ↗</a>
-                </div>
               </div>
             )}
 

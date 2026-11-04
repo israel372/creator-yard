@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import homepageDefaults from "../homepageDefaults.js";
+import { getAccountToken } from "../api/api";
 import {
-  loginVideoPortfolioAdmin,
   getAdminHomepageContent,
   saveHomepageDraft,
   publishHomepageContent,
@@ -157,10 +157,7 @@ function SectionHeading({ title, description, visible, onToggle }) {
 }
 
 export default function HomepageContentAdmin() {
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem("cy_video_admin_token") || ""
-  );
-  const [password, setPassword] = useState("");
+  const [token] = useState(() => getAccountToken());
   const [content, setContent] = useState(() => clone(homepageDefaults));
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -169,8 +166,11 @@ export default function HomepageContentAdmin() {
   const [published, setPublished] = useState(false);
 
   useEffect(() => {
-    if (token) loadContent(token);
-    // Load only when the session token changes.
+    if (token) {
+      loadContent(token);
+    } else {
+      window.location.replace("/account");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
@@ -183,40 +183,12 @@ export default function HomepageContentAdmin() {
       setPublished(Boolean(data.is_published));
     } catch (err) {
       setError(err.message || "Could not load homepage content.");
-      if (/401|403|expired|authentication|admin token/i.test(err.message || "")) {
-        sessionStorage.removeItem("cy_video_admin_token");
-        setToken("");
+      if (/401|expired|authentication|account token/i.test(err.message || "")) {
+        window.location.replace("/account");
       }
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-    setNotice("");
-    try {
-      const data = await loginVideoPortfolioAdmin(password);
-      sessionStorage.setItem("cy_video_admin_token", data.access_token);
-      setPassword("");
-      setToken(data.access_token);
-      setNotice("Welcome to the Homepage Editor.");
-    } catch (err) {
-      setError(err.message || "Login failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function logout() {
-    sessionStorage.removeItem("cy_video_admin_token");
-    setToken("");
-    setContent(clone(homepageDefaults));
-    setPublished(false);
-    setNotice("");
-    setError("");
   }
 
   function update(path, value) {
@@ -311,43 +283,7 @@ export default function HomepageContentAdmin() {
     margin: "0 auto",
   };
 
-  if (!token) {
-    return (
-      <main style={pageStyle}>
-        <div style={{ ...cardStyle, maxWidth: 420, margin: "8vh auto" }}>
-          <p style={{ color: C.lime, fontSize: 12, letterSpacing: 2 }}>
-            CREATOR-YARD
-          </p>
-          <h1 style={{ marginTop: 0 }}>Homepage CMS</h1>
-          <p style={{ color: C.muted, lineHeight: 1.6 }}>
-            Sign in with your existing admin password to manage the homepage.
-          </p>
-          {error && <p role="alert" style={{ color: C.red }}>{error}</p>}
-          <form onSubmit={handleLogin}>
-            <label htmlFor="homepage-admin-password" style={labelStyle}>
-              Admin password
-            </label>
-            <input
-              id="homepage-admin-password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              style={{ ...inputStyle, marginBottom: 16 }}
-            />
-            <button type="submit" disabled={loading} style={primaryButton}>
-              {loading ? "Signing in…" : "Sign in"}
-            </button>
-          </form>
-          {notice && <p style={{ color: C.lime }}>{notice}</p>}
-          <p style={{ marginTop: 24 }}>
-            <a href="/" style={{ color: C.lime }}>← View homepage</a>
-          </p>
-        </div>
-      </main>
-    );
-  }
+  if (!token) return null;
 
   return (
     <main style={pageStyle}>
@@ -380,7 +316,7 @@ export default function HomepageContentAdmin() {
             }}>
               View homepage
             </a>
-            <button onClick={logout} style={buttonStyle}>Log out</button>
+            <a href="/admin/dashboard" style={{ ...buttonStyle, textDecoration: "none" }}>Back to dashboard</a>
           </div>
         </header>
 

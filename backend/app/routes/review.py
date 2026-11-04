@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.routes.user_accounts import require_permission
 from app.models.review import Review
 from app.schemas.review import ReviewCreate, ReviewResponse
 
@@ -44,7 +45,8 @@ def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
 def update_review(
     review_id: int,
     review: ReviewCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_reviews")),
 ):
     existing_review = db.query(Review).filter(Review.id == review_id).first()
 
@@ -65,7 +67,11 @@ def update_review(
 # Delete review
 # ==========================
 @router.delete("/{review_id}")
-def delete_review(review_id: int, db: Session = Depends(get_db)):
+def delete_review(
+    review_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("manage_reviews")),
+):
     review = db.query(Review).filter(Review.id == review_id).first()
 
     if not review:

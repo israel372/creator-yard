@@ -43,16 +43,19 @@ function Footer({ profile = {} }) {
             href="#home"
             aria-label={`${brandName} home`}
           >
-            {profile.logo ? (
-              <img
-                src={getUploadUrl(profile.logo)}
-                alt={`${brandName} logo`}
-                className="footer-logo"
-              />
-            ) : (
-              <span className="footer-logo-fallback">
-                {brandName}
-              </span>
+            {(profile.logo_type === "image" || profile.logo_type === "both") &&
+              profile.logo && (
+                <img
+                  src={getUploadUrl(profile.logo)}
+                  alt={`${brandName} logo`}
+                  className="footer-logo"
+                />
+              )}
+
+            {(profile.logo_type === "text" ||
+              profile.logo_type === "both" ||
+              !profile.logo_type) && (
+              <span className="footer-logo-fallback">{brandName}</span>
             )}
           </a>
 

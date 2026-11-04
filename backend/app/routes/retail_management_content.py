@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.retail_management_content import RetailManagementContent
-from app.routes.video_portfolio_auth import require_video_portfolio_admin
+from app.routes.user_accounts import require_permission
 
 
 router = APIRouter(tags=["Retail Management Page CMS"])
@@ -89,7 +89,7 @@ def get_published_content(db: Session = Depends(get_db)):
 @router.get("/retail-management/admin/content")
 def get_admin_content(
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_retail_content")),
 ):
     page = get_or_create_content(db)
     versions = content_versions(page)
@@ -106,7 +106,7 @@ def get_admin_content(
 def save_draft(
     payload: PageContentPayload,
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_retail_content")),
 ):
     page = get_or_create_content(db)
     versions = content_versions(page)
@@ -129,7 +129,7 @@ def save_draft(
 @router.post("/retail-management/admin/content/publish")
 def publish_content(
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_retail_content")),
 ):
     page = get_or_create_content(db)
     versions = content_versions(page)

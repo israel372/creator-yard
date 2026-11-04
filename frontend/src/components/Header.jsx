@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { getProfile, getUploadUrl } from "../api/api";
@@ -22,25 +21,21 @@ function Header() {
   }, []);
 
   const brandName = profile.store_name || "Creator-Yard";
-
   const closeMenu = () => setMenuOpen(false);
-
 
   const isVideoProductionPage =
     window.location.pathname === "/video-production";
-
   const homePrefix = isVideoProductionPage ? "/" : "";
 
   const navLinks = [
     { label: "Home", href: `${homePrefix}#home` },
-    { label: "Services", href: `${homePrefix}#services` },
-    { label: "Our Work", href: `${homePrefix}#work` },
     { label: "Video Production", href: "/video-production" },
+    { label: "Training", href: "/training" },
+    { label: "Retail Management", href: "/retail-management" },
     { label: "About", href: `${homePrefix}#about` },
     { label: "Contact", href: `${homePrefix}#contact` },
+    { label: "Account", href: "/account" },
   ];
-
-
 
   return (
     <header className="cy-header">
@@ -48,7 +43,7 @@ function Header() {
         <nav aria-label="Main navigation">
           <a
             className="logo-area"
-            href="#home"
+            href={`${homePrefix}#home`}
             onClick={closeMenu}
             aria-label={`${brandName} home`}
           >
@@ -70,7 +65,9 @@ function Header() {
           <ul className="nav-links">
             {navLinks.map((link) => (
               <li key={link.label}>
-                <a href={link.href}>{link.label}</a>
+                <a href={link.href} onClick={closeMenu}>
+                  {link.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -79,7 +76,9 @@ function Header() {
             type="button"
             className="menu-btn"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={
+              menuOpen ? "Close navigation menu" : "Open navigation menu"
+            }
             aria-expanded={menuOpen}
           >
             {menuOpen ? <FaTimes /> : <FaBars />}

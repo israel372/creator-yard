@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getProfile,
-  getProducts,
+  getPublishedClientBrands,
   getUploadUrl,
   getPublishedHomepageContent,
   getPublishedVideos,
@@ -51,6 +51,22 @@ function Home() {
   const [profile, setProfile] = useState({});
   const [brands, setBrands] = useState([]);
   const [portfolioVideos, setPortfolioVideos] = useState([]);
+  const portfolioTrackRef = useRef(null);
+
+  const scrollPortfolio = (direction) => {
+    const track = portfolioTrackRef.current;
+    const firstCard = track?.querySelector(".cy-portfolio-card");
+
+    if (!track || !firstCard) return;
+
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap || styles.gap) || 0;
+
+    track.scrollBy({
+      left: direction * (firstCard.getBoundingClientRect().width + gap),
+      behavior: "smooth",
+    });
+  };
 
 
 
@@ -120,12 +136,8 @@ function Home() {
       }
 
       try {
-        const data = await getProducts();
-        const portfolioBrands = Array.isArray(data)
-          ? data.filter((item) => item.is_portfolio === true)
-          : [];
-
-        setBrands(portfolioBrands);
+        const data = await getPublishedClientBrands();
+        setBrands(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Could not load client brands:", error);
       }
@@ -362,27 +374,42 @@ function Home() {
           </div>
         </section>
 
-                  <section className="cy-work" id="work">
-          <div className="cy-section-heading">
-            <div>
-              <div className="cy-section-kicker">THE WORK SPEAKS</div>
-              <h2>
-                Made with purpose.
-                <br />
-                <span>Built to stand out.</span>
-              </h2>
+          {homepageContent.portfolio?.visible !== false && (
+          <section className="cy-work" id="work">
+            <div className="cy-section-heading">
+              <div>
+                <div className="cy-section-kicker">
+                  {homepageContent.portfolio?.kicker}
+                </div>
+                <h2>{homepageContent.portfolio?.heading}</h2>
+              </div>
+              <p>{homepageContent.portfolio?.description}</p>
             </div>
 
-            <p>
-              Every brand has a story. This is where we'll showcase the
-              identities, websites, campaigns, videos, and digital solutions
-              we create.
-            </p>
-          </div>
+          <div className="cy-home-video-carousel">
+            <div className="cy-home-video-controls" aria-label="Video navigation">
+              <button
+                type="button"
+                onClick={() => scrollPortfolio(-1)}
+                aria-label="Previous video"
+              >
+                &#8592;
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollPortfolio(1)}
+                aria-label="Next video"
+              >
+                &#8594;
+              </button>
+            </div>
 
-          <div className="cy-portfolio-grid cy-home-video-grid">
+            <div
+              className="cy-portfolio-grid cy-home-video-grid"
+              ref={portfolioTrackRef}
+            >
             {portfolioVideos.length > 0 ? (
-              portfolioVideos.slice(0, 3).map((video) => (
+              portfolioVideos.map((video) => (
                 <article className="cy-portfolio-card" key={video.id}>
                   <div className="cy-home-video-media">
                     {video.video_url ? (
@@ -439,14 +466,13 @@ function Home() {
               </div>
             )}
           </div>
+          </div>
           <div className="cy-portfolio-note">
             <span className="cy-note-star">✳</span>
-            <p>
-              Explore our creative direction, digital experiences, and content
-              work. Get in touch to discuss a project for your business.
-            </p>
+            <p>{homepageContent.portfolio?.note}</p>
           </div>
-        </section>
+          </section>
+          )}
 
         <section className="cy-approach">
           <div className="cy-approach-left">
@@ -490,7 +516,7 @@ function Home() {
           {brands.length > 0 ? (
             <div className="cy-client-grid">
               {brands.map((brand) => {
-                const logo = brand.image ? getUploadUrl(brand.image) : "";
+                const logo = brand.logo ? getUploadUrl(brand.logo) : "";
 
                 const logoContent = (
                   <>
@@ -511,18 +537,33 @@ function Home() {
 
                 return (
                   <div className="cy-client-item" key={brand.id}>
-                    {brand.link ? (
-                      <a
-                        href={normalizeUrl(brand.link)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Visit ${brand.name}`}
-                      >
-                        {logoContent}
-                      </a>
-                    ) : (
-                      <div className="cy-client-static">{logoContent}</div>
-                    )}
+                    <div className="cy-client-brand-identity">
+                      {logoContent}
+                    </div>
+
+                    <div className="cy-client-actions">
+                      {brand.website && (
+                        <a
+                          className="cy-client-action cy-client-action-visit"
+                          href={normalizeUrl(brand.website)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Visit Brand <span>↗</span>
+                        </a>
+                      )}
+
+                      {brand.contact_url && (
+                        <a
+                          className="cy-client-action cy-client-action-contact"
+                          href={normalizeUrl(brand.contact_url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Contact Brand <span>↗</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 );
               })}

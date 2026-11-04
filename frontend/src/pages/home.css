@@ -1135,8 +1135,14 @@
 }
 
 .cy-client-item {
+  display: flex;
   min-width: 0;
-  min-height: 150px;
+  min-height: 190px;
+  padding: 18px;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.035);
@@ -1153,19 +1159,56 @@
   background: rgba(255, 255, 255, 0.065);
 }
 
-.cy-client-item > a,
-.cy-client-static {
+.cy-client-brand-identity {
   display: flex;
   width: 100%;
-  min-height: 150px;
-  padding: 22px;
-  box-sizing: border-box;
+  min-height: 105px;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  text-decoration: none;
+  text-align: center;
+}
+
+.cy-client-actions {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cy-client-action {
+  display: inline-flex;
+  min-height: 34px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(180, 145, 255, 0.35);
+  border-radius: 8px;
   color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cy-client-action-visit {
+  background: rgba(180, 145, 255, 0.12);
+}
+
+.cy-client-action-contact {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cy-client-action:hover {
+  border-color: rgba(180, 145, 255, 0.8);
+  background: rgba(180, 145, 255, 0.22);
 }
 
 .cy-client-item img {
@@ -1221,15 +1264,23 @@
     gap: 12px;
   }
 
-  .cy-client-item,
-  .cy-client-item > a,
-  .cy-client-static {
-    min-height: 125px;
+  .cy-client-item {
+    min-height: 175px;
+    padding: 12px;
+    gap: 12px;
   }
 
-  .cy-client-item > a,
-  .cy-client-static {
-    padding: 14px;
+  .cy-client-brand-identity {
+    min-height: 90px;
+  }
+
+  .cy-client-actions {
+    gap: 6px;
+  }
+
+  .cy-client-action {
+    padding: 8px 9px;
+    font-size: 10px;
   }
 
   .cy-client-item img {
@@ -1296,10 +1347,12 @@
 }
 
 .cy-home-video-media {
-  aspect-ratio: 16 / 10;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
   overflow: hidden;
-  background: #f0edf3;
-  border-radius: 5px;
+  background: #111;
+  border-radius: 8px;
 }
 
 .cy-home-video-media video,
@@ -1307,7 +1360,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+}
+
+.cy-home-video-media video {
+  background: #111;
 }
 
 .cy-home-video-category {
@@ -1366,5 +1424,85 @@
 @media (max-width: 560px) {
   .cy-home-video-empty-state {
     padding: 24px;
+  }
+}
+
+
+/* Homepage video carousel navigation */
+.cy-home-video-carousel {
+  width: 100%;
+  min-width: 0;
+}
+
+.cy-home-video-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.cy-home-video-controls button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #ded8e7;
+  border-radius: 50%;
+  background: #fff;
+  color: #17131d;
+  font-size: 21px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cy-home-video-controls button:hover {
+  background: #702be2;
+  color: #fff;
+}
+
+.cy-home-video-grid {
+  display: flex !important;
+  width: 100%;
+  min-width: 0;
+  gap: 19px;
+  margin-top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+
+.cy-home-video-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.cy-home-video-grid > .cy-portfolio-card {
+  flex: 0 0 31%;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 900px) {
+  .cy-home-video-grid > .cy-portfolio-card {
+    flex-basis: 44%;
+  }
+}
+
+@media (max-width: 560px) {
+  .cy-home-video-controls button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cy-home-video-grid {
+    gap: 14px;
+  }
+
+  .cy-home-video-grid > .cy-portfolio-card {
+    flex-basis: 78%;
   }
 }

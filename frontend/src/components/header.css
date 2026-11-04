@@ -126,3 +126,68 @@
     display: none;
   }
 }
+
+/* Creator Yard header call-to-action */
+.cy-header .header-cta,
+.cy-header .mobile-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border: 1px solid #a985ff;
+  border-radius: 999px;
+  background: #a985ff;
+  color: #17131f;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.cy-header .header-cta:hover,
+.cy-header .mobile-cta:hover {
+  background: transparent;
+  border-color: #b99aff;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cy-header .header-cta svg,
+.cy-header .mobile-cta svg {
+  font-size: 12px;
+}
+
+.cy-header .mobile-cta {
+  align-self: flex-start;
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) and (min-width: 761px) {
+  .cy-header nav {
+    gap: 16px;
+  }
+
+  .cy-header .nav-links {
+    gap: 16px;
+  }
+
+  .cy-header .logo-area {
+    font-size: 19px;
+  }
+
+  .cy-header .header-cta {
+    padding: 10px 13px;
+  }
+}
+
+@media (max-width: 760px) {
+  .cy-header .header-cta {
+    display: none;
+  }
+}

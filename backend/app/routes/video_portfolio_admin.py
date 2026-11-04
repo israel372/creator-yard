@@ -10,7 +10,7 @@ from app.schemas.video_portfolio_admin import (
     VideoPortfolioUpdate,
 )
 from app.services import video_portfolio_service
-from app.routes.video_portfolio_auth import require_video_portfolio_admin
+from app.routes.user_accounts import require_permission
 
 router = APIRouter(
     prefix="/video-portfolio/admin",
@@ -21,7 +21,7 @@ router = APIRouter(
 @router.get("/", response_model=list[VideoPortfolioResponse])
 def list_videos(
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_video_portfolio")),
 ):
     return video_portfolio_service.list_all_videos(db)
 
@@ -34,7 +34,7 @@ def list_videos(
 def create_video(
     payload: VideoPortfolioCreate,
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_video_portfolio")),
 ):
     return video_portfolio_service.create_video(db, payload)
 
@@ -44,7 +44,7 @@ def update_video(
     video_id: int,
     payload: VideoPortfolioUpdate,
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_video_portfolio")),
 ):
     video = db.get(VideoPortfolio, video_id)
     if video is None:
@@ -57,7 +57,7 @@ def update_video(
 def delete_video(
     video_id: int,
     db: Session = Depends(get_db),
-    _: bool = Depends(require_video_portfolio_admin),
+    _: bool = Depends(require_permission("manage_video_portfolio")),
 ):
     video = db.get(VideoPortfolio, video_id)
     if video is None:
