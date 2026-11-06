@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getProfile,
   getPublishedVideos,
@@ -53,6 +53,23 @@ function VideoProduction() {
   const [showSampleVideo, setShowSampleVideo] = useState(false);
   const [portfolioVideos, setPortfolioVideos] = useState([]);
   const [pageContent, setPageContent] = useState(videoProductionDefaults);
+  const portfolioScrollRef = useRef(null);
+
+const scrollPortfolio = (direction) => {
+  const container = portfolioScrollRef.current;
+  if (!container) return;
+
+  const card = container.querySelector(".cy-video-showcase-card");
+  const gap = 22;
+  const scrollAmount = card
+    ? card.getBoundingClientRect().width + gap
+    : container.clientWidth;
+
+  container.scrollBy({
+    left: direction * scrollAmount,
+    behavior: "smooth",
+  });
+};
 
   useEffect(() => {
     let active = true;
@@ -181,188 +198,235 @@ function VideoProduction() {
         )}
 
 
-        {pageContent.showcase.visible !== false && (
+                {pageContent.showcase.visible !== false && (
           <section className="cy-video-showcase" id="selected-work">
-          <div className="cy-video-kicker">{pageContent.showcase.kicker}</div>
-
-          <div className="cy-video-showcase-heading">
-            <div>
-              <h2>
-                {pageContent.showcase.headingLine1}
-                <br />
-                <span>{pageContent.showcase.headingLine2}</span>
-              </h2>
+            <div className="cy-video-kicker">
+              {pageContent.showcase.kicker}
             </div>
-            <p>
-              {pageContent.showcase.description}
-            </p>
-          </div>
 
-          {portfolioVideos.length > 0 ? (
-            <div className="cy-video-portfolio-grid">
-              {portfolioVideos.map((video) => (
-                <article
-                  className="cy-video-showcase-card"
-                  key={video.id}
+            <div className="cy-video-showcase-heading">
+              <div>
+                <h2>
+                  {pageContent.showcase.headingLine1}
+                  <br />
+                  <span>{pageContent.showcase.headingLine2}</span>
+                </h2>
+              </div>
+              <p>
+                {pageContent.showcase.description}
+              </p>
+            </div>
+
+            {portfolioVideos.length > 0 ? (
+              <div className="cy-video-portfolio-carousel">
+
+                {portfolioVideos.length > 1 && (
+                  <div className="cy-video-portfolio-controls">
+                    <button
+                      type="button"
+                      className="cy-video-portfolio-arrow"
+                      onClick={() => scrollPortfolio(-1)}
+                      aria-label="Previous videos"
+                    >
+                      ←
+                    </button>
+
+                    <button
+                      type="button"
+                      className="cy-video-portfolio-arrow"
+                      onClick={() => scrollPortfolio(1)}
+                      aria-label="Next videos"
+                    >
+                      →
+                    </button>
+                  </div>
+                )}
+
+                <div
+                  className="cy-video-portfolio-grid"
+                  ref={portfolioScrollRef}
                 >
-                  <div className="cy-video-showcase-media">
+                  {portfolioVideos.map((video) => (
+                    <article
+                      className="cy-video-showcase-card"
+                      key={video.id}
+                    >
+                      <div className="cy-video-showcase-media">
+                        <video
+                          controls
+                          playsInline
+                          preload="metadata"
+                          poster={video.thumbnail_url || undefined}
+                          aria-label={video.title}
+                        >
+                          <source src={video.video_url} />
+                          Your browser does not support HTML video.
+                        </video>
+                      </div>
+
+                      <div className="cy-video-showcase-caption">
+                        <div>
+                          <span>{video.category}</span>
+                          <h3>{video.title}</h3>
+                        </div>
+                        <p>{video.description}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <article className="cy-video-showcase-card">
+                <div className="cy-video-showcase-media">
+                  {showSampleVideo ? (
                     <video
                       controls
+                      autoPlay
                       playsInline
                       preload="metadata"
-                      poster={video.thumbnail_url || undefined}
-                      aria-label={video.title}
+                      poster={pageContent.showcase.sampleThumbnailUrl || undefined}
+                      aria-label="Creator-Yard video sample"
                     >
-                      <source src={video.video_url} />
+                      <source
+                        src={pageContent.showcase.sampleVideoUrl}
+                        type="video/mp4"
+                      />
                       Your browser does not support HTML video.
                     </video>
+                  ) : (
+                    <button
+                      className="cy-video-showcase-play"
+                      type="button"
+                      onClick={() => setShowSampleVideo(true)}
+                      aria-label="Play Creator-Yard video sample"
+                    >
+                      <img
+                        src={pageContent.showcase.sampleThumbnailUrl || undefined}
+                        alt="Preview frame from a Creator-Yard video sample"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span
+                        className="cy-video-showcase-play-icon"
+                        aria-hidden="true"
+                      >
+                        ▶
+                      </span>
+                      <span className="cy-video-showcase-play-label">
+                        PLAY VIDEO
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="cy-video-showcase-caption">
+                  <div>
+                    <span>{pageContent.showcase.sampleCategory}</span>
+                    <h3>{pageContent.showcase.sampleTitle}</h3>
+                  </div>
+                  <p>{pageContent.showcase.sampleDescription}</p>
+                </div>
+              </article>
+            )}
+          </section>
+        )}
+
+        {pageContent.servicesSection.visible !== false && (
+          <section className="cy-video-services" id="video-services">
+            <div className="cy-video-section-heading">
+              <div>
+                <div className="cy-video-kicker">
+                  {pageContent.servicesSection.kicker}
+                </div>
+                <h2>
+                  {pageContent.servicesSection.headingLine1}
+                  <br />
+                  <span>{pageContent.servicesSection.headingLine2}</span>
+                </h2>
+              </div>
+              <p>
+                {pageContent.servicesSection.description}
+              </p>
+            </div>
+
+            <div className="cy-video-service-grid">
+              {(pageContent.servicesSection.services || videoProductionDefaults.servicesSection.services).map((service) => (
+                <article className="cy-video-service-card" key={service.number}>
+                  <div className="cy-video-service-image">
+                    <img
+                      src={service.image}
+                      alt={service.title}
+                      loading="lazy"
+                    />
+                    <span className="cy-video-service-number">
+                      {service.number}
+                    </span>
+                    <span className="cy-video-image-arrow">↗</span>
                   </div>
 
-                  <div className="cy-video-showcase-caption">
-                    <div>
-                      <span>{video.category}</span>
-                      <h3>{video.title}</h3>
+                  <div className="cy-video-service-copy">
+                    <h3>{service.title}</h3>
+                    <p>{service.description}</p>
+
+                    <div className="cy-video-tags">
+                      {service.tags.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
                     </div>
-                    <p>{video.description}</p>
+
+                    <a
+                      href={whatsappLink}
+                      target={whatsappLink.startsWith("https://") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                    >
+                      {pageContent.servicesSection.buttonLabel} <span>↗</span>
+                    </a>
                   </div>
                 </article>
               ))}
             </div>
-          ) : (
-            <article className="cy-video-showcase-card">
-              <div className="cy-video-showcase-media">
-                {showSampleVideo ? (
-                  <video
-                    controls
-                    autoPlay
-                    playsInline
-                    preload="metadata"
-                    poster={pageContent.showcase.sampleThumbnailUrl || undefined}
-                    aria-label="Creator-Yard video sample"
-                  >
-                    <source
-                      src={pageContent.showcase.sampleVideoUrl}
-                      type="video/mp4"
-                    />
-                    Your browser does not support HTML video.
-                  </video>
-                ) : (
-                  <button
-                    className="cy-video-showcase-play"
-                    type="button"
-                    onClick={() => setShowSampleVideo(true)}
-                    aria-label="Play Creator-Yard video sample"
-                  >
-                    <img
-                      src={pageContent.showcase.sampleThumbnailUrl || undefined}
-                      alt="Preview frame from a Creator-Yard video sample"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <span
-                      className="cy-video-showcase-play-icon"
-                      aria-hidden="true"
-                    >
-                      ▶
-                    </span>
-                    <span className="cy-video-showcase-play-label">
-                      PLAY VIDEO
-                    </span>
-                  </button>
-                )}
-              </div>
-
-              <div className="cy-video-showcase-caption">
-                <div>
-                  <span>{pageContent.showcase.sampleCategory}</span>
-                  <h3>{pageContent.showcase.sampleTitle}</h3>
-                </div>
-                <p>{pageContent.showcase.sampleDescription}</p>
-              </div>
-            </article>
-          )}
-        </section>
-        )}
-
-
-        {pageContent.servicesSection.visible !== false && (
-          <section className="cy-video-services" id="video-services">
-          <div className="cy-video-section-heading">
-            <div>
-              <div className="cy-video-kicker">{pageContent.servicesSection.kicker}</div>
-              <h2>
-                {pageContent.servicesSection.headingLine1}
-                <br />
-                <span>{pageContent.servicesSection.headingLine2}</span>
-              </h2>
-            </div>
-            <p>
-              {pageContent.servicesSection.description}
-            </p>
-          </div>
-
-          <div className="cy-video-service-grid">
-            {(pageContent.servicesSection.services || videoProductionDefaults.servicesSection.services).map((service) => (
-              <article className="cy-video-service-card" key={service.number}>
-                <div className="cy-video-service-image">
-                  <img src={service.image} alt={service.title} loading="lazy" />
-                  <span className="cy-video-service-number">{service.number}</span>
-                  <span className="cy-video-image-arrow">↗</span>
-                </div>
-                <div className="cy-video-service-copy">
-                  <h3>{service.title}</h3>
-                  <p>{service.description}</p>
-                  <div className="cy-video-tags">
-                    {service.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                  <a
-                    href={whatsappLink}
-                    target={whatsappLink.startsWith("https://") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                  >
-                    {pageContent.servicesSection.buttonLabel} <span>↗</span>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+          </section>
         )}
 
         {pageContent.process.visible !== false && (
           <section className="cy-video-process">
-          <div className="cy-video-kicker">{pageContent.process.kicker}</div>
-          <h2>
-            {pageContent.process.headingLine1}
-            <br />
-            <span>{pageContent.process.headingLine2}</span>
-          </h2>
+            <div className="cy-video-kicker">
+              {pageContent.process.kicker}
+            </div>
 
-          <div className="cy-video-process-grid">
-            {(pageContent.process.steps || videoProductionDefaults.process.steps).map((step) => (
-              <article key={step.number}>
-                <span>{step.number}</span>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+            <h2>
+              {pageContent.process.headingLine1}
+              <br />
+              <span>{pageContent.process.headingLine2}</span>
+            </h2>
+
+            <div className="cy-video-process-grid">
+              {(pageContent.process.steps || videoProductionDefaults.process.steps).map((step) => (
+                <article key={step.number}>
+                  <span>{step.number}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
         )}
 
         {pageContent.packages.visible !== false && (
           <section className="cy-video-packages">
             <div>
-              <div className="cy-video-kicker">{pageContent.packages.kicker}</div>
+              <div className="cy-video-kicker">
+                {pageContent.packages.kicker}
+              </div>
               <h2>
                 {pageContent.packages.headingLine1}
                 <br />
                 <span>{pageContent.packages.headingLine2}</span>
               </h2>
             </div>
+
             <p>{pageContent.packages.description}</p>
+
             <div className="cy-video-package-grid">
               {(pageContent.packages.items || videoProductionDefaults.packages.items).map((item) => (
                 <article
@@ -372,6 +436,7 @@ function VideoProduction() {
                   <span>{item.number} / {item.tier}</span>
                   <h3>{item.title}</h3>
                   <p>{item.description}</p>
+
                   <a
                     href={whatsappLink}
                     target={whatsappLink.startsWith("https://") ? "_blank" : undefined}
@@ -382,35 +447,49 @@ function VideoProduction() {
                 </article>
               ))}
             </div>
+
             <small>{pageContent.packages.footnote}</small>
           </section>
         )}
 
         {pageContent.contact.visible !== false && (
           <section className="cy-video-contact" id="video-contact">
-          <div className="cy-video-contact-orb">CY®</div>
-          <div className="cy-video-kicker">{pageContent.contact.kicker}</div>
-          <h2>
-            {pageContent.contact.headingLine1}
-            <br />
-            <span>{pageContent.contact.headingLine2}</span>
-          </h2>
-          <p>
-            {pageContent.contact.description}
-          </p>
-          <div className="cy-video-actions">
-            <a className="cy-video-button cy-video-button-lime" href={whatsappLink}
-              target={whatsappLink.startsWith("https://") ? "_blank" : undefined}
-              rel="noopener noreferrer">
-              {pageContent.contact.whatsappButton} <span>↗</span>
-            </a>
-            {profile.email && (
-              <a className="cy-video-button cy-video-button-outline" href={emailLink}>
-                {pageContent.contact.emailButton} <span>↗</span>
+            <div className="cy-video-contact-orb">CY®</div>
+
+            <div className="cy-video-kicker">
+              {pageContent.contact.kicker}
+            </div>
+
+            <h2>
+              {pageContent.contact.headingLine1}
+              <br />
+              <span>{pageContent.contact.headingLine2}</span>
+            </h2>
+
+            <p>
+              {pageContent.contact.description}
+            </p>
+
+            <div className="cy-video-actions">
+              <a
+                className="cy-video-button cy-video-button-lime"
+                href={whatsappLink}
+                target={whatsappLink.startsWith("https://") ? "_blank" : undefined}
+                rel="noopener noreferrer"
+              >
+                {pageContent.contact.whatsappButton} <span>↗</span>
               </a>
-            )}
-          </div>
-        </section>
+
+              {profile.email && (
+                <a
+                  className="cy-video-button cy-video-button-outline"
+                  href={emailLink}
+                >
+                  {pageContent.contact.emailButton} <span>↗</span>
+                </a>
+              )}
+            </div>
+          </section>
         )}
       </main>
 
